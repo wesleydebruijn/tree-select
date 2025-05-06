@@ -10,4 +10,8 @@ export class TreeSelect {
   constructor(nodes: TreeNode[]) {
     this.nodes = nodes;
   }
+
+  public getNodes(): TreeNode[] {
+    return this.nodes;
+  }
 }
