@@ -66,18 +66,24 @@
     <h1>Tree Select Demo</h1>
 
     <div class="demo-section">
-        <h2>Basic Tree</h2>
-        <div id="basic-tree"></div>
+        <h2>Input</h2>
+        <input type="text" id="basic-tree" value="1,2" />
     </div>
 
     <div class="demo-section">
-        <h2>Checkbox Tree</h2>
-        <div id="checkbox-tree"></div>
+        <h2>Select (single)</h2>
+        <select type="text" id="checkbox-tree">
+            <option value="1" selected>Black</option>
+            <option value="2" selected>Blue</option>
+        </select>
     </div>
 
     <div class="demo-section">
-        <h2>Custom Styled Tree</h2>
-        <div id="custom-tree"></div>
+        <h2>Select (Multiple)</h2>
+        <select type="text" id="custom-tree" multiple>
+            <option value="1" selected>Black</option>
+            <option value="2" selected>Blue</option>
+        </select>
     </div>
 
     <script type="module" src="./index.ts"></script>
