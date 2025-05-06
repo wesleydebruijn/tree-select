@@ -1,7 +1,7 @@
-import { TreeSelect, TreeNode } from '../src/index';
+import { TreeSelect, TreeRecord } from '../src/index';
 
 // Sample data for different tree examples
-const data: TreeNode[] = [
+const data: TreeRecord[] = [
   {
     id: '1',
     name: 'Apple',
