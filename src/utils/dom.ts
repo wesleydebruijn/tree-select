@@ -1,9 +1,19 @@
-export function hide(element: HTMLElement): void {
+export function hide(element: HTMLElement | null): void {
+  if (!element) return;
+
   element.style.display = 'none';
 }
 
-export function show(element: HTMLElement): void {
+export function show(element: HTMLElement | null): void {
+  if (!element) return;
+
   element.style.display = '';
+}
+
+export function remove(element: HTMLElement | null): void {
+  if (!element) return;
+
+  element.remove();
 }
 
 export function createWrapper(className?: string): HTMLElement {

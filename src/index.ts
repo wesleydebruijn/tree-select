@@ -10,6 +10,7 @@ import {
   createCollapse,
   show,
   hide,
+  remove,
 } from './utils/dom';
 
 declare global {
@@ -79,20 +80,43 @@ export class TreeSelect {
 
     this.mount();
 
+    console.log(this);
+
     if (this.settings.open) this.open();
   }
 
-  open(): void {
+  public mount(): void {
+    this.wrapperElement = createWrapper(this.settings.wrapperClassName);
+    this.input.after(this.wrapperElement);
+
+    this.searchElement = createSearch(this.settings.searchClassName || this.input.className);
+    this.searchElement.placeholder = this.settings.placeholder;
+    this.wrapperElement.appendChild(this.searchElement);
+
+    this.dropdownElement = createDropdown(this.settings.dropdownClassName);
+    this.wrapperElement.appendChild(this.dropdownElement);
+
+    this.listElement = createList(this.settings.listClassName);
+    this.dropdownElement.appendChild(this.listElement);
+
+    hide(this.input);
+  }
+
+  public open(): void {
     if (!this.dataLoaded) this.load();
     if (!this.itemsLoaded) this.buildItems(this.data);
     if (!this.itemsRendered) this.renderItems(this.data);
+
+    this.onOpen();
   }
 
-  close(): void {
-    if (this.settings.onClose) this.settings.onClose();
+  public close(): void {
+    hide(this.dropdownElement);
+
+    this.onClose();
   }
 
-  async load(): Promise<void> {
+  public async load(): Promise<void> {
     if (!this.settings.src) return;
 
     fetch(this.settings.src)
@@ -101,14 +125,20 @@ export class TreeSelect {
         this.data = data;
         this.dataLoaded = true;
 
-        if (this.settings.onLoad) this.settings.onLoad(this.data);
+        this.onLoad();
 
         this.buildItems(this.data);
         this.renderItems(this.data);
       });
   }
 
-  buildItems(data: TreeRecord[], level: number = 0, parent?: string): void {
+  public destroy(): void {
+    this.input.treeselect = null;
+    remove(this.wrapperElement);
+    show(this.input);
+  }
+
+  private buildItems(data: TreeRecord[], level: number = 0, parent?: string): void {
     if (level > this.itemLevels) this.itemLevels = level;
 
     data.forEach(record => {
@@ -135,24 +165,7 @@ export class TreeSelect {
     });
   }
 
-  mount(): void {
-    this.wrapperElement = createWrapper(this.settings.wrapperClassName);
-    this.input.after(this.wrapperElement);
-
-    this.searchElement = createSearch(this.settings.searchClassName || this.input.className);
-    this.searchElement.placeholder = this.settings.placeholder;
-    this.wrapperElement.appendChild(this.searchElement);
-
-    this.dropdownElement = createDropdown(this.settings.dropdownClassName);
-    this.wrapperElement.appendChild(this.dropdownElement);
-
-    this.listElement = createList(this.settings.listClassName);
-    this.dropdownElement.appendChild(this.listElement);
-
-    hide(this.input);
-  }
-
-  renderItems(
+  private renderItems(
     data: TreeRecord[],
     level: number = 0,
     parent: HTMLElement | null = this.listElement
@@ -173,9 +186,7 @@ export class TreeSelect {
       itemElement.appendChild(checkboxElement);
       itemElement.appendChild(document.createTextNode(record.name));
 
-      item.itemElement = itemElement;
-      item.checkboxElement = checkboxElement;
-      item.collapseElement = collapseElement;
+      this.items.set(id, { ...item, itemElement, checkboxElement, collapseElement });
 
       if (parent) parent.appendChild(itemElement);
 
@@ -188,10 +199,30 @@ export class TreeSelect {
     });
   }
 
-  destroy(): void {
-    this.input.treeselect = null;
-    if (this.wrapperElement) this.wrapperElement.remove();
-    show(this.input);
+  // callbacks
+
+  private onLoad(): void {
+    if (this.settings.onLoad) this.settings.onLoad(this.data);
+  }
+
+  private onSelect(selected: string[]): void {
+    if (this.settings.onSelect) this.settings.onSelect(selected);
+  }
+
+  private onSearch(search: string): void {
+    if (this.settings.onSearch) this.settings.onSearch(search);
+  }
+
+  private onClear(): void {
+    if (this.settings.onClear) this.settings.onClear();
+  }
+
+  private onOpen(): void {
+    if (this.settings.onOpen) this.settings.onOpen();
+  }
+
+  private onClose(): void {
+    if (this.settings.onClose) this.settings.onClose();
   }
 }
 
