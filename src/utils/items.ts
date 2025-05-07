@@ -1,5 +1,22 @@
 import type { TreeItem } from '../types';
 
+export function select(items: Map<string, TreeItem>, item: TreeItem, checked: boolean): void {
+  item.checked = checked;
+  item.indeterminate = false;
+
+  updateChildren(items, item, { checked, indeterminate: false });
+  updateAncestors(items, item, ancestor => {
+    if (!ancestor.children) return;
+
+    const children = ancestor.children.map(id => items.get(id)!);
+    const allChecked = children.every(child => child.checked);
+    const someChecked = children.some(child => child.checked || child.indeterminate);
+
+    ancestor.checked = allChecked;
+    ancestor.indeterminate = !allChecked && someChecked;
+  });
+}
+
 export function update(
   items: Map<string, TreeItem>,
   fn: ((item: TreeItem) => void) | Partial<TreeItem>

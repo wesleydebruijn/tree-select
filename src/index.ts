@@ -8,7 +8,7 @@ import {
   visible,
 } from './utils/dom';
 import { debounce } from './utils/global';
-import { update, updateChildren, updateAncestors } from './utils/items';
+import { select, update, updateChildren, updateAncestors } from './utils/items';
 
 import type { TreeItem, TreeRecord, TreeSettings } from './types';
 
@@ -237,21 +237,7 @@ export class TreeSelect {
   }
 
   private onItemSelect(_event: Event, item: TreeItem): void {
-    item.checked = !item.checked;
-    item.indeterminate = false;
-
-    updateChildren(this.items, item, { checked: item.checked, indeterminate: false });
-    updateAncestors(this.items, item, ancestor => {
-      if (!ancestor.children) return;
-
-      const children = ancestor.children.map(id => this.items.get(id)!);
-      const allChecked = children.every(child => child.checked);
-      const someChecked = children.some(child => child.checked || child.indeterminate);
-
-      ancestor.checked = allChecked;
-      ancestor.indeterminate = !allChecked && someChecked;
-    });
-
+    select(this.items, item, !item.checked);
     this.updateDOM();
 
     if (this.settings.onSelect) this.settings.onSelect(this.selected);
@@ -289,10 +275,6 @@ export class TreeSelect {
     this.updateDOM();
 
     if (this.settings.onSearch) this.settings.onSearch(search);
-  }
-
-  private onClear(): void {
-    if (this.settings.onClear) this.settings.onClear();
   }
 
   private onOpen(): void {
