@@ -46,6 +46,7 @@ export class TreeSelect {
     this.settings = { ...defaults, ...settings };
     this.onFocus = this.onFocus.bind(this);
     this.onSearch = this.onSearch.bind(this);
+    this.onKeyDown = this.onKeyDown.bind(this);
 
     // initialize the root input element
     this.inputElement = getInputElement(input);
@@ -69,6 +70,7 @@ export class TreeSelect {
   public mount(): void {
     // create the wrapper element
     this.wrapperElement = createDiv(classNames.wrapper, this.settings.wrapperClassName);
+    this.wrapperElement.addEventListener('keydown', this.onKeyDown);
     this.inputElement.after(this.wrapperElement);
 
     // create the search element
@@ -313,6 +315,10 @@ export class TreeSelect {
     this.updateDOM();
 
     if (this.settings.onSearch) this.settings.onSearch(search);
+  }
+
+  private onKeyDown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') this.close();
   }
 
   private onOpen(): void {
