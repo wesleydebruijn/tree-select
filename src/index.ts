@@ -9,7 +9,13 @@ import {
 } from './utils/dom';
 import { debounce } from './utils/global';
 import { getInputElement, getInputValues, setInputValues } from './utils/input';
-import { update, updateChildren, updateAncestors } from './utils/items';
+import {
+  updateItems,
+  updateItemChildren,
+  updateItemAncestors,
+  propagateItem,
+  populateItems,
+} from './utils/items';
 
 import type { TreeItem, TreeRecord, TreeSettings } from './types';
 
@@ -59,9 +65,6 @@ export class TreeSelect {
     this.inputElement.treeSelect = this;
     this.inputElement.addEventListener('change', this.onChange);
 
-    // initialize the selected values from the input element
-    this.selected = getInputValues(this.inputElement, this.settings.delimiter);
-
     this.data = this.settings.data || [];
 
     this.mount();
@@ -94,7 +97,7 @@ export class TreeSelect {
     document.addEventListener('focus', this.onFocus, true);
 
     // hide the initial input element
-    // visible(this.inputElement, false);
+    visible(this.inputElement, false);
   }
 
   public open(): void {
@@ -137,18 +140,6 @@ export class TreeSelect {
 
     this.inputElement.treeSelect = null;
     this.inputElement.removeEventListener('change', this.onChange);
-  }
-
-  private createList(): void {
-    this.listElement?.remove();
-
-    this.listElement = createDiv(classNames.list, this.settings.listClassName);
-    this.createItems(this.data, 0, this.listElement);
-    this.selectItems(this.selected);
-
-    this.updateDOM();
-
-    if (this.dropdownElement) this.dropdownElement.appendChild(this.listElement);
   }
 
   private createItems(
@@ -214,36 +205,6 @@ export class TreeSelect {
     });
   }
 
-  private selectItems(selected: string[]): void {
-    let ancestors = new Set<string>();
-
-    update(this.items, item => {
-      const checked = item.level === this.itemLevels && selected.includes(item._id);
-
-      if (checked && item.parent) ancestors.add(item.parent);
-
-      return { checked, indeterminate: false };
-    });
-
-    ancestors.forEach(id => {
-      const item = this.items.get(id)!;
-
-      this.propagateItems(item);
-      updateAncestors(this.items, item, item => this.propagateItems(item));
-    });
-  }
-
-  private propagateItems(item: TreeItem): void {
-    if (!item.children) return;
-
-    const children = item.children.map(id => this.items.get(id)!);
-    const allChecked = children.every(child => child.checked);
-    const someChecked = children.some(child => child.checked || child.indeterminate);
-
-    item.checked = allChecked;
-    item.indeterminate = !allChecked && someChecked;
-  }
-
   private updateDOM(): void {
     this.items.forEach(item => {
       visible(item.childrenElement, !item.collapsed);
@@ -266,8 +227,18 @@ export class TreeSelect {
   private onLoad(): void {
     this.loaded = true;
     this.loading = false;
+    this.selected = getInputValues(this.inputElement, this.settings.delimiter);
 
-    this.createList();
+    this.listElement = createDiv(classNames.list, this.settings.listClassName);
+    this.createItems(this.data, 0, this.listElement);
+    populateItems(
+      this.items,
+      item => this.selected.includes(item.id) && item.level === this.itemLevels
+    );
+
+    this.updateDOM();
+
+    if (this.dropdownElement) this.dropdownElement.appendChild(this.listElement);
 
     if (this.settings.onLoad) this.settings.onLoad(this.data);
   }
@@ -276,8 +247,8 @@ export class TreeSelect {
     item.checked = !item.checked;
     item.indeterminate = false;
 
-    updateChildren(this.items, item, { checked: item.checked, indeterminate: false });
-    updateAncestors(this.items, item, item => this.propagateItems(item));
+    updateItemChildren(this.items, item, { checked: item.checked, indeterminate: false });
+    updateItemAncestors(this.items, item, item => propagateItem(this.items, item));
 
     this.selected = Array.from(this.items.values())
       .filter(item => item.checked && item.level === this.itemLevels)
@@ -305,17 +276,17 @@ export class TreeSelect {
     this.search = search;
 
     if (this.search.length === 0) {
-      update(this.items, { hidden: false, collapsed: true });
+      updateItems(this.items, { hidden: false, collapsed: true });
     } else {
-      update(this.items, { hidden: true, collapsed: false });
-      update(this.items, item => {
+      updateItems(this.items, { hidden: true, collapsed: false });
+      updateItems(this.items, item => {
         const match = item.name.toLowerCase().includes(this.search.toLowerCase());
         if (!match) return;
 
         item.hidden = false;
 
-        updateChildren(this.items, item, { hidden: false });
-        updateAncestors(this.items, item, { hidden: false });
+        updateItemChildren(this.items, item, { hidden: false });
+        updateItemAncestors(this.items, item, { hidden: false });
       });
     }
 
@@ -345,7 +316,19 @@ export class TreeSelect {
   }
 
   private onChange(event: Event): void {
-    console.log(event);
+    if (!this.loaded) return;
+
+    this.selected = getInputValues(
+      event.target as HTMLInputElement | HTMLSelectElement,
+      this.settings.delimiter
+    );
+
+    populateItems(
+      this.items,
+      item => this.selected.includes(item.id) && item.level === this.itemLevels
+    );
+
+    this.updateDOM();
   }
 }
 
