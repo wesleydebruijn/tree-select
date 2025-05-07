@@ -4,12 +4,6 @@ export function visible(element: HTMLElement | null, visible: boolean): void {
   element.style.display = visible ? '' : 'none';
 }
 
-export function remove(element: HTMLElement | null): void {
-  if (!element) return;
-
-  element.remove();
-}
-
 export function createDiv(name: string, className?: string): HTMLElement {
   const div = document.createElement('div');
   div.classList.add(name);

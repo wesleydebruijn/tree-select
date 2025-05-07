@@ -1,13 +1,7 @@
 import { defaults, classNames } from './constants';
-import { createDiv, createInput, createCheckbox, visible, remove } from './utils/dom';
+import { createDiv, createInput, createCheckbox, visible } from './utils/dom';
 import { debounce } from './utils/global';
-import {
-  updateAll,
-  updateChildrenCheckedState,
-  updateParentCheckedState,
-  updateChildrenVisibleState,
-  updateParentVisibleState,
-} from './utils/items';
+import { update, updateChildren, updateAncestors } from './utils/items';
 
 import type { TreeItem, TreeRecord, TreeSettings } from './types';
 
@@ -20,18 +14,17 @@ declare global {
 export class TreeSelect {
   public settings: TreeSettings;
 
-  public input: HTMLInputElement | HTMLSelectElement;
-  public selected: string[] = [];
-
   public opened: boolean = false;
-
-  public data: TreeRecord[] = [];
   public loaded: boolean = false;
   public loading: boolean = false;
+
+  public data: TreeRecord[] = [];
+  public selected: string[] = [];
 
   public items: Map<string, TreeItem> = new Map();
   public itemLevels: number = 0;
 
+  public input: HTMLInputElement | HTMLSelectElement;
   public wrapperElement: HTMLElement | null = null;
   public searchElement: HTMLInputElement | null = null;
   public dropdownElement: HTMLElement | null = null;
@@ -69,14 +62,15 @@ export class TreeSelect {
   }
 
   public mount(): void {
+    // create the wrapper element
     this.wrapperElement = createDiv(classNames.wrapper, this.settings.wrapperClassName);
     this.wrapperElement.addEventListener('click', event => this.onClick(event));
     document.addEventListener('click', event => this.onClickOutside(event));
-
     this.input.after(this.wrapperElement);
 
+    // create the search element
     this.searchElement = createInput(
-      'tree-select-search',
+      classNames.search,
       this.settings.searchClassName || this.input.className
     );
     this.searchElement.placeholder = this.settings.placeholder;
@@ -86,6 +80,7 @@ export class TreeSelect {
     );
     this.wrapperElement.appendChild(this.searchElement);
 
+    // create the dropdown element
     this.dropdownElement = createDiv(classNames.dropdown, this.settings.dropdownClassName);
     this.wrapperElement.appendChild(this.dropdownElement);
 
@@ -124,14 +119,14 @@ export class TreeSelect {
 
   public destroy(): void {
     document.removeEventListener('click', event => this.onClickOutside(event));
-    remove(this.wrapperElement);
+    this.wrapperElement?.remove();
     visible(this.input, true);
 
     this.input.treeSelect = null;
   }
 
   private createList(): void {
-    remove(this.listElement);
+    this.listElement?.remove();
 
     this.listElement = createDiv(classNames.list, this.settings.listClassName);
     this.createItems(this.data, 0, this.listElement);
@@ -230,8 +225,17 @@ export class TreeSelect {
     item.checked = !item.checked;
     item.indeterminate = false;
 
-    updateChildrenCheckedState(this.items, item, item.checked);
-    updateParentCheckedState(this.items, item);
+    updateChildren(this.items, item, { checked: item.checked });
+    updateAncestors(this.items, item, ancestor => {
+      if (!ancestor.children) return;
+
+      const children = ancestor.children.map(id => this.items.get(id)!);
+      const allChecked = children.every(child => child.checked);
+      const someChecked = children.some(child => child.checked || child.indeterminate);
+
+      ancestor.checked = allChecked;
+      ancestor.indeterminate = !allChecked && someChecked;
+    });
 
     this.updateDOM();
 
@@ -248,17 +252,17 @@ export class TreeSelect {
     const search = (event.target as HTMLInputElement).value;
 
     if (search.length === 0) {
-      updateAll(this.items, { hidden: false, collapsed: true });
+      update(this.items, { hidden: false, collapsed: true });
     } else {
-      updateAll(this.items, { hidden: true, collapsed: false });
-      updateAll(this.items, item => {
+      update(this.items, { hidden: true, collapsed: false });
+      update(this.items, item => {
         const match = item.name.toLowerCase().includes(search.toLowerCase());
         if (!match) return;
 
         item.hidden = false;
 
-        updateChildrenVisibleState(this.items, item);
-        updateParentVisibleState(this.items, item);
+        updateChildren(this.items, item, { hidden: false });
+        updateAncestors(this.items, item, { hidden: false });
       });
     }
 
