@@ -64,3 +64,35 @@ export function updateParentVisibleState(items: Map<string, TreeItem>, item: Tre
 
   updateParentVisibleState(items, parent);
 }
+
+export function updateChildren(
+  items: Map<string, TreeItem>,
+  item: TreeItem,
+  fn: ((item: TreeItem) => void) | Partial<TreeItem>
+): void {
+  if (!item.children) return;
+
+  item.children.forEach(id => {
+    const child = items.get(id);
+    if (!child) return;
+
+    Object.assign(child, fn instanceof Function ? fn(child) : fn);
+
+    if (child.children) updateChildren(items, child, fn);
+  });
+}
+
+export function updateAncestors(
+  items: Map<string, TreeItem>,
+  item: TreeItem,
+  fn: ((item: TreeItem) => void) | Partial<TreeItem>
+): void {
+  if (!item.parent) return;
+
+  const parent = items.get(item.parent);
+  if (!parent) return;
+
+  Object.assign(parent, fn instanceof Function ? fn(parent) : fn);
+
+  updateAncestors(items, parent, fn);
+}

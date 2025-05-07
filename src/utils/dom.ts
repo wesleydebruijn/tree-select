@@ -1,17 +1,7 @@
 export function visible(element: HTMLElement | null, visible: boolean): void {
-  visible ? show(element) : hide(element);
-}
-
-export function hide(element: HTMLElement | null): void {
   if (!element) return;
 
-  element.style.display = 'none';
-}
-
-export function show(element: HTMLElement | null): void {
-  if (!element) return;
-
-  element.style.display = '';
+  element.style.display = visible ? '' : 'none';
 }
 
 export function remove(element: HTMLElement | null): void {
@@ -20,67 +10,27 @@ export function remove(element: HTMLElement | null): void {
   element.remove();
 }
 
-export function createWrapper(className?: string): HTMLElement {
-  const wrapper = document.createElement('div');
-  wrapper.classList.add('tree-select-wrapper');
-  if (className) wrapper.classList.add(className);
+export function createDiv(name: string, className?: string): HTMLElement {
+  const div = document.createElement('div');
+  div.classList.add(name);
+  if (className) div.classList.add(className);
 
-  return wrapper;
+  return div;
 }
 
-export function createSearch(className?: string): HTMLInputElement {
+export function createInput(name: string, className?: string): HTMLInputElement {
   const input = document.createElement('input');
-  input.classList.add('tree-select-search');
+  input.classList.add(name);
   if (className) input.classList.add(className);
 
   return input;
 }
 
-export function createDropdown(className?: string): HTMLElement {
-  const dropdown = document.createElement('div');
-  dropdown.classList.add('tree-select-dropdown');
-  if (className) dropdown.classList.add(className);
-
-  return dropdown;
-}
-
-export function createList(className?: string): HTMLElement {
-  const list = document.createElement('div');
-  list.classList.add('tree-select-list');
-  if (className) list.classList.add(className);
-
-  return list;
-}
-
-export function createItem(className?: string): HTMLElement {
-  const item = document.createElement('div');
-  item.classList.add('tree-select-item');
-  if (className) item.classList.add(className);
-
-  return item;
-}
-
-export function createItemChildren(className?: string): HTMLElement {
-  const item = document.createElement('div');
-  item.classList.add('tree-select-children');
-  if (className) item.classList.add(className);
-
-  return item;
-}
-
-export function createCheckbox(className?: string): HTMLInputElement {
+export function createCheckbox(name: string, className?: string): HTMLInputElement {
   const checkbox = document.createElement('input');
   checkbox.type = 'checkbox';
-  checkbox.classList.add('tree-select-checkbox');
+  checkbox.classList.add(name);
   if (className) checkbox.classList.add(className);
 
   return checkbox;
-}
-
-export function createCollapse(className?: string): HTMLElement {
-  const collapse = document.createElement('div');
-  collapse.classList.add('tree-select-collapse');
-  if (className) collapse.classList.add(className);
-
-  return collapse;
 }
