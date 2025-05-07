@@ -1,9 +1,5 @@
 import type { TreeItem } from '../types';
 
-export function stripId(id: string): string {
-  return id.split('-')[1];
-}
-
 export function update(
   items: Map<string, TreeItem>,
   fn: ((item: TreeItem) => void) | Partial<TreeItem>

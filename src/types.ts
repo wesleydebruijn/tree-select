@@ -5,6 +5,7 @@ export interface TreeRecord {
 }
 
 export interface TreeItem {
+  _id: string;
   id: string;
   parent?: string;
   children?: string[];

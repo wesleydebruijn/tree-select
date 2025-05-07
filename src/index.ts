@@ -9,7 +9,7 @@ import {
 } from './utils/dom';
 import { debounce } from './utils/global';
 import { getInputElement, getInputValues, setInputValues } from './utils/input';
-import { stripId, update, updateChildren, updateAncestors } from './utils/items';
+import { update, updateChildren, updateAncestors } from './utils/items';
 
 import type { TreeItem, TreeRecord, TreeSettings } from './types';
 
@@ -44,6 +44,7 @@ export class TreeSelect {
     settings: Partial<TreeSettings> = {}
   ) {
     this.settings = { ...defaults, ...settings };
+    this.onChange = this.onChange.bind(this);
     this.onFocus = this.onFocus.bind(this);
     this.onSearch = this.onSearch.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
@@ -56,6 +57,7 @@ export class TreeSelect {
     }
 
     this.inputElement.treeSelect = this;
+    this.inputElement.addEventListener('change', this.onChange);
 
     // initialize the selected values from the input element
     this.selected = getInputValues(this.inputElement, this.settings.delimiter);
@@ -129,10 +131,12 @@ export class TreeSelect {
     document.removeEventListener('mousedown', this.onFocus, true);
     document.removeEventListener('focus', this.onFocus, true);
 
-    this.wrapperElement?.remove();
+    if (this.wrapperElement) this.wrapperElement.remove();
+
     visible(this.inputElement, true);
 
     this.inputElement.treeSelect = null;
+    this.inputElement.removeEventListener('change', this.onChange);
   }
 
   private createList(): void {
@@ -157,10 +161,11 @@ export class TreeSelect {
 
     data.forEach(record => {
       let item: TreeItem = {
-        id: `${level}-${record.id}`,
+        _id: `${level}-${record.id}`,
         parent,
         children: record.children?.map(child => `${level + 1}-${child.id}`),
         level,
+        id: `${record.id}`,
         name: record.name,
         checked: false,
         indeterminate: false,
@@ -192,7 +197,7 @@ export class TreeSelect {
         childrenElement = createDiv(classNames.itemChildren);
         itemElement.appendChild(childrenElement);
 
-        this.createItems(record.children, level + 1, childrenElement, item.id);
+        this.createItems(record.children, level + 1, childrenElement, item._id);
       }
 
       labelElement.appendChild(checkboxElement);
@@ -205,7 +210,7 @@ export class TreeSelect {
       item.collapseElement = collapseElement;
       item.childrenElement = childrenElement;
 
-      this.items.set(item.id, item);
+      this.items.set(item._id, item);
     });
   }
 
@@ -213,7 +218,7 @@ export class TreeSelect {
     let ancestors = new Set<string>();
 
     update(this.items, item => {
-      const checked = item.level === this.itemLevels && selected.includes(stripId(item.id));
+      const checked = item.level === this.itemLevels && selected.includes(item._id);
 
       if (checked && item.parent) ancestors.add(item.parent);
 
@@ -276,7 +281,7 @@ export class TreeSelect {
 
     this.selected = Array.from(this.items.values())
       .filter(item => item.checked && item.level === this.itemLevels)
-      .map(item => stripId(item.id));
+      .map(item => item.id);
 
     setInputValues(this.inputElement, this.selected, this.settings.delimiter);
 
@@ -337,6 +342,10 @@ export class TreeSelect {
     } else {
       this.close();
     }
+  }
+
+  private onChange(event: Event): void {
+    console.log(event);
   }
 }
 
