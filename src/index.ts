@@ -24,6 +24,7 @@ export class TreeSelect {
   public opened: boolean = false;
   public loaded: boolean = false;
   public loading: boolean = false;
+  public search: string = '';
 
   public data: TreeRecord[] = [];
   public selected: string[] = [];
@@ -42,6 +43,8 @@ export class TreeSelect {
     settings: Partial<TreeSettings> = {}
   ) {
     this.settings = { ...defaults, ...settings };
+    this.onFocus = this.onFocus.bind(this);
+    this.onSearch = this.onSearch.bind(this);
 
     // initialize the root input element
     this.inputElement =
@@ -71,8 +74,6 @@ export class TreeSelect {
   public mount(): void {
     // create the wrapper element
     this.wrapperElement = createDiv(classNames.wrapper, this.settings.wrapperClassName);
-    this.wrapperElement.addEventListener('click', event => this.onClick(event));
-    document.addEventListener('click', event => this.onClickOutside(event));
     this.inputElement.after(this.wrapperElement);
 
     // create the search element
@@ -81,16 +82,16 @@ export class TreeSelect {
       this.settings.searchClassName || this.inputElement.className
     );
     this.searchElement.placeholder = this.settings.placeholder;
-    this.searchElement.addEventListener(
-      'keyup',
-      debounce(event => this.onSearch(event), 100)
-    );
+    this.searchElement.addEventListener('keyup', debounce(this.onSearch, 100));
     this.wrapperElement.appendChild(this.searchElement);
 
     // create the dropdown element
     this.dropdownElement = createDiv(classNames.dropdown, this.settings.dropdownClassName);
     visible(this.dropdownElement, false);
     this.wrapperElement.appendChild(this.dropdownElement);
+
+    document.addEventListener('mousedown', this.onFocus, true);
+    document.addEventListener('focus', this.onFocus, true);
 
     visible(this.inputElement, false);
   }
@@ -126,7 +127,9 @@ export class TreeSelect {
   }
 
   public destroy(): void {
-    document.removeEventListener('click', event => this.onClickOutside(event));
+    document.removeEventListener('mousedown', this.onFocus, true);
+    document.removeEventListener('focus', this.onFocus, true);
+
     this.wrapperElement?.remove();
     visible(this.inputElement, true);
 
@@ -264,13 +267,16 @@ export class TreeSelect {
 
   private onSearch(event: Event): void {
     const search = (event.target as HTMLInputElement).value;
+    if (search === this.search) return;
 
-    if (search.length === 0) {
+    this.search = search;
+
+    if (this.search.length === 0) {
       update(this.items, { hidden: false, collapsed: true });
     } else {
       update(this.items, { hidden: true, collapsed: false });
       update(this.items, item => {
-        const match = item.name.toLowerCase().includes(search.toLowerCase());
+        const match = item.name.toLowerCase().includes(this.search.toLowerCase());
         if (!match) return;
 
         item.hidden = false;
@@ -297,14 +303,12 @@ export class TreeSelect {
     if (this.settings.onClose) this.settings.onClose();
   }
 
-  private onClick(_event: Event): void {
-    this.open();
-  }
-
-  private onClickOutside(event: Event): void {
-    if (this.wrapperElement?.contains(event.target as Node)) return;
-
-    this.close();
+  private onFocus(event: Event): void {
+    if (this.wrapperElement?.contains(event.target as HTMLElement)) {
+      this.open();
+    } else {
+      this.close();
+    }
   }
 }
 
