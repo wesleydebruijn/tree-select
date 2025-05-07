@@ -274,6 +274,10 @@ export class TreeSelect {
 
     this.updateDOM();
 
+    this.selected = Array.from(this.items.values())
+      .filter(item => item.checked && item.level === this.itemLevels)
+      .map(item => stripId(item.id));
+
     if (this.settings.onSelect) this.settings.onSelect(this.selected);
   }
 
