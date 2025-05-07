@@ -29,12 +29,13 @@ export function setInputValues(
   if (input instanceof HTMLInputElement) {
     input.value = values.join(delimiter);
   } else {
-    Array.from(input.options).forEach(option => {
-      option.selected = values.includes(option.value);
-    });
+    const options = Array.from(input.options);
+    const optionValues = new Set(options.map(opt => opt.value));
+
+    options.forEach(option => (option.selected = values.includes(option.value)));
 
     values
-      .filter(value => !Array.from(input.options).some(option => option.value === value))
+      .filter(value => !optionValues.has(value))
       .forEach(value => {
         const option = document.createElement('option');
         option.value = value;
