@@ -8,7 +8,8 @@ import {
   visible,
 } from './utils/dom';
 import { debounce } from './utils/global';
-import { select, update, updateChildren, updateAncestors } from './utils/items';
+import { getInputElement, getInputValues } from './utils/input';
+import { stripId, update, updateChildren, updateAncestors } from './utils/items';
 
 import type { TreeItem, TreeRecord, TreeSettings } from './types';
 
@@ -47,10 +48,7 @@ export class TreeSelect {
     this.onSearch = this.onSearch.bind(this);
 
     // initialize the root input element
-    this.inputElement =
-      typeof input === 'string'
-        ? (document.querySelector(input) as HTMLInputElement | HTMLSelectElement)
-        : input;
+    this.inputElement = getInputElement(input);
 
     if (this.inputElement.treeSelect) {
       throw new Error('TreeSelect already initialized on this element');
@@ -59,10 +57,7 @@ export class TreeSelect {
     this.inputElement.treeSelect = this;
 
     // initialize the selected values from the input element
-    this.selected =
-      this.inputElement instanceof HTMLInputElement
-        ? this.inputElement.value.split(this.settings.delimiter)
-        : Array.from(this.inputElement.selectedOptions).map(option => option.value);
+    this.selected = getInputValues(this.inputElement, this.settings.delimiter);
 
     this.data = this.settings.data || [];
 
@@ -90,10 +85,12 @@ export class TreeSelect {
     visible(this.dropdownElement, false);
     this.wrapperElement.appendChild(this.dropdownElement);
 
+    // add event listeners
     document.addEventListener('mousedown', this.onFocus, true);
     document.addEventListener('focus', this.onFocus, true);
 
-    visible(this.inputElement, false);
+    // hide the initial input element
+    // visible(this.inputElement, false);
   }
 
   public open(): void {
@@ -118,7 +115,7 @@ export class TreeSelect {
   public async load(): Promise<void> {
     if (!this.settings.src) return this.onLoad();
 
-    fetch(this.settings.src)
+    return fetch(this.settings.src)
       .then(response => response.json())
       .then((data: TreeRecord[]) => {
         this.data = data;
@@ -141,6 +138,8 @@ export class TreeSelect {
 
     this.listElement = createDiv(classNames.list, this.settings.listClassName);
     this.createItems(this.data, 0, this.listElement);
+    this.selectItems(this.selected);
+
     this.updateDOM();
 
     if (this.dropdownElement) this.dropdownElement.appendChild(this.listElement);
@@ -208,6 +207,36 @@ export class TreeSelect {
     });
   }
 
+  private selectItems(selected: string[]): void {
+    let ancestors = new Set<string>();
+
+    update(this.items, item => {
+      const checked = item.level === this.itemLevels && selected.includes(stripId(item.id));
+
+      if (checked && item.parent) ancestors.add(item.parent);
+
+      return { checked, indeterminate: false };
+    });
+
+    ancestors.forEach(id => {
+      const item = this.items.get(id)!;
+
+      this.propagateItems(item);
+      updateAncestors(this.items, item, item => this.propagateItems(item));
+    });
+  }
+
+  private propagateItems(item: TreeItem): void {
+    if (!item.children) return;
+
+    const children = item.children.map(id => this.items.get(id)!);
+    const allChecked = children.every(child => child.checked);
+    const someChecked = children.some(child => child.checked || child.indeterminate);
+
+    item.checked = allChecked;
+    item.indeterminate = !allChecked && someChecked;
+  }
+
   private updateDOM(): void {
     this.items.forEach(item => {
       visible(item.childrenElement, !item.collapsed);
@@ -237,7 +266,12 @@ export class TreeSelect {
   }
 
   private onItemSelect(_event: Event, item: TreeItem): void {
-    select(this.items, item, !item.checked);
+    item.checked = !item.checked;
+    item.indeterminate = false;
+
+    updateChildren(this.items, item, { checked: item.checked, indeterminate: false });
+    updateAncestors(this.items, item, item => this.propagateItems(item));
+
     this.updateDOM();
 
     if (this.settings.onSelect) this.settings.onSelect(this.selected);
