@@ -20,3 +20,27 @@ export function getInputValues(
     ? input.value.split(delimiter)
     : Array.from(input.selectedOptions).map(option => option.value);
 }
+
+export function setInputValues(
+  input: HTMLInputElement | HTMLSelectElement,
+  values: string[],
+  delimiter: string = ','
+): void {
+  if (input instanceof HTMLInputElement) {
+    input.value = values.join(delimiter);
+  } else {
+    Array.from(input.options).forEach(option => {
+      option.selected = values.includes(option.value);
+    });
+
+    values
+      .filter(value => !Array.from(input.options).some(option => option.value === value))
+      .forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.text = value;
+        option.selected = true;
+        input.add(option);
+      });
+  }
+}

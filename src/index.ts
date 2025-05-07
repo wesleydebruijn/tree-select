@@ -8,7 +8,7 @@ import {
   visible,
 } from './utils/dom';
 import { debounce } from './utils/global';
-import { getInputElement, getInputValues } from './utils/input';
+import { getInputElement, getInputValues, setInputValues } from './utils/input';
 import { stripId, update, updateChildren, updateAncestors } from './utils/items';
 
 import type { TreeItem, TreeRecord, TreeSettings } from './types';
@@ -274,11 +274,13 @@ export class TreeSelect {
     updateChildren(this.items, item, { checked: item.checked, indeterminate: false });
     updateAncestors(this.items, item, item => this.propagateItems(item));
 
-    this.updateDOM();
-
     this.selected = Array.from(this.items.values())
       .filter(item => item.checked && item.level === this.itemLevels)
       .map(item => stripId(item.id));
+
+    setInputValues(this.inputElement, this.selected, this.settings.delimiter);
+
+    this.updateDOM();
 
     if (this.settings.onSelect) this.settings.onSelect(this.selected);
   }
