@@ -40,6 +40,6 @@ const data: TreeRecord[] = [
   },
 ];
 
-new TreeSelect('#basic-tree', { data });
-new TreeSelect('#checkbox-tree', { data });
-new TreeSelect('#custom-tree', { data });
+new TreeSelect('#input', { data });
+new TreeSelect('#single-select', { data });
+new TreeSelect('#multi-select', { data });

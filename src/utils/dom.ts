@@ -12,6 +12,21 @@ export function createDiv(name: string, className?: string): HTMLElement {
   return div;
 }
 
+export function createLabel(name: string, className?: string): HTMLLabelElement {
+  const label = document.createElement('label');
+  label.classList.add(name);
+  if (className) label.classList.add(className);
+
+  return label;
+}
+
+export function createSpan(innerHTML: string): HTMLSpanElement {
+  const span = document.createElement('span');
+  span.innerHTML = innerHTML;
+
+  return span;
+}
+
 export function createInput(name: string, className?: string): HTMLInputElement {
   const input = document.createElement('input');
   input.classList.add(name);

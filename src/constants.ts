@@ -9,6 +9,7 @@ export const classNames = {
   itemChildren: 'tree-select-item-children',
   itemCheckbox: 'tree-select-item-checkbox',
   itemCollapse: 'tree-select-item-collapse',
+  itemLabel: 'tree-select-item-label',
 };
 
 export const defaults: TreeSettings = {

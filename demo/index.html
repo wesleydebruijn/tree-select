@@ -18,47 +18,28 @@
             border: 1px solid #e0e0e0;
             border-radius: 8px;
         }
-        .tree-node {
-            margin-left: 20px;
+
+        .tree-select-wrapper {
+            position: relative;
         }
-        .tree-node.selected {
-            background-color: #e3f2fd;
+
+        .tree-select-dropdown {
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            background-color: #fff;
+            padding: 5px 10px;
+            z-index: 1;
         }
-        .tree-node-content {
-            padding: 8px;
-            cursor: pointer;
-            border-radius: 4px;
+
+        .tree-select-item-label {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 2px;
         }
-        .tree-node-content:hover {
-            background-color: #f5f5f5;
-        }
-        .tree-node-children {
+
+        .tree-select-item-children {
             margin-left: 20px;
-        }
-        .tree-node-toggle {
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-        .tree-node-toggle::before {
-            content: '▶';
-            font-size: 12px;
-            transition: transform 0.2s;
-        }
-        .tree-node-toggle.expanded::before {
-            transform: rotate(90deg);
-        }
-        .tree-node-label {
-            flex: 1;
-        }
-        .tree-node-checkbox {
-            margin-right: 8px;
         }
     </style>
 </head>
@@ -67,12 +48,12 @@
 
     <div class="demo-section">
         <h2>Input</h2>
-        <input type="text" id="basic-tree" value="1,2" />
+        <input type="text" id="input" value="1,2" />
     </div>
 
     <div class="demo-section">
         <h2>Select (single)</h2>
-        <select type="text" id="checkbox-tree">
+        <select type="text" id="single-select">
             <option value="1" selected>Black</option>
             <option value="2" selected>Blue</option>
         </select>
@@ -80,7 +61,7 @@
 
     <div class="demo-section">
         <h2>Select (Multiple)</h2>
-        <select type="text" id="custom-tree" multiple>
+        <select type="text" id="multi-select" multiple>
             <option value="1" selected>Black</option>
             <option value="2" selected>Blue</option>
         </select>
