@@ -1,3 +1,7 @@
+export function visible(element: HTMLElement | null, visible: boolean): void {
+  visible ? show(element) : hide(element);
+}
+
 export function hide(element: HTMLElement | null): void {
   if (!element) return;
 
@@ -77,7 +81,6 @@ export function createCollapse(className?: string): HTMLElement {
   const collapse = document.createElement('div');
   collapse.classList.add('tree-select-collapse');
   if (className) collapse.classList.add(className);
-  collapse.innerHTML = '>';
 
   return collapse;
 }

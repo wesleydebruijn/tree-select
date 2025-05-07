@@ -17,19 +17,16 @@ export interface TreeItem {
   itemElement: HTMLElement | null;
   checkboxElement: HTMLInputElement | null;
   collapseElement: HTMLElement | null;
+  childrenElement: HTMLElement | null;
 }
 
 export interface TreeSettings {
   open: boolean;
   multiple: boolean;
-  searchable: boolean;
-  clearable: boolean;
-  collapsable: boolean;
-  checkable: boolean;
-  openLevel: number;
-  checkboxLevel: number;
   placeholder: string;
   delimiter: string;
+  collapsedContent: string;
+  expandedContent: string;
   data?: TreeRecord[];
   src?: string;
 

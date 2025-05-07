@@ -10,8 +10,17 @@ import {
   createCollapse,
   show,
   hide,
+  visible,
   remove,
 } from './utils/dom';
+import {
+  updateAll,
+  updateChildrenCheckedState,
+  updateParentCheckedState,
+  updateChildrenVisibleState,
+  updateParentVisibleState,
+} from './utils/items';
+import { debounce } from './utils/global';
 
 declare global {
   interface HTMLElement {
@@ -20,15 +29,11 @@ declare global {
 }
 
 const defaults: TreeSettings = {
-  open: true,
+  open: false,
   multiple: false,
-  searchable: false,
-  clearable: false,
-  collapsable: false,
-  checkable: false,
-  openLevel: 0,
-  checkboxLevel: 0,
   placeholder: 'Search...',
+  collapsedContent: '▶',
+  expandedContent: '▼',
   delimiter: ',',
 };
 
@@ -38,12 +43,13 @@ export class TreeSelect {
   public input: HTMLInputElement | HTMLSelectElement;
   public selected: string[] = [];
 
+  public opened: boolean = false;
+
   public data: TreeRecord[] = [];
-  public dataLoaded: boolean = false;
+  public loaded: boolean = false;
+  public loading: boolean = false;
 
   public items: Map<string, TreeItem> = new Map();
-  public itemsLoaded: boolean = false;
-  public itemsRendered: boolean = false;
   public itemLevels: number = 0;
 
   public wrapperElement: HTMLElement | null = null;
@@ -76,125 +82,149 @@ export class TreeSelect {
         : Array.from(this.input.selectedOptions).map(option => option.value);
 
     this.data = this.settings.data || [];
-    this.dataLoaded = !this.settings.src;
 
     this.mount();
-
-    console.log(this);
 
     if (this.settings.open) this.open();
   }
 
   public mount(): void {
     this.wrapperElement = createWrapper(this.settings.wrapperClassName);
+    this.wrapperElement.addEventListener('click', event => this.onClick(event));
+    document.addEventListener('click', event => this.onClickOutside(event));
+
     this.input.after(this.wrapperElement);
 
     this.searchElement = createSearch(this.settings.searchClassName || this.input.className);
     this.searchElement.placeholder = this.settings.placeholder;
+    this.searchElement.addEventListener(
+      'keyup',
+      debounce(event => this.onSearch(event), 100)
+    );
     this.wrapperElement.appendChild(this.searchElement);
 
     this.dropdownElement = createDropdown(this.settings.dropdownClassName);
     this.wrapperElement.appendChild(this.dropdownElement);
 
-    this.listElement = createList(this.settings.listClassName);
-    this.dropdownElement.appendChild(this.listElement);
-
     hide(this.input);
   }
 
   public open(): void {
-    if (!this.dataLoaded) this.load();
-    if (!this.itemsLoaded) this.buildItems(this.data);
-    if (!this.itemsRendered) this.renderItems(this.data);
+    if (this.opened) return;
+    if (!this.loaded && !this.loading) this.load();
+
+    this.opened = true;
+    show(this.dropdownElement);
 
     this.onOpen();
   }
 
   public close(): void {
+    if (!this.opened) return;
+
+    this.opened = false;
     hide(this.dropdownElement);
 
     this.onClose();
   }
 
   public async load(): Promise<void> {
-    if (!this.settings.src) return;
+    if (!this.settings.src) return this.onLoad();
 
     fetch(this.settings.src)
       .then(response => response.json())
       .then((data: TreeRecord[]) => {
         this.data = data;
-        this.dataLoaded = true;
-
         this.onLoad();
-
-        this.buildItems(this.data);
-        this.renderItems(this.data);
       });
   }
 
   public destroy(): void {
-    this.input.treeselect = null;
+    document.removeEventListener('click', event => this.onClickOutside(event));
     remove(this.wrapperElement);
     show(this.input);
+
+    this.input.treeselect = null;
   }
 
-  private buildItems(data: TreeRecord[], level: number = 0, parent?: string): void {
+  private createList(): void {
+    remove(this.listElement);
+
+    this.listElement = createList(this.settings.listClassName);
+    this.createItems(this.data, 0, this.listElement);
+    this.updateDOM();
+
+    if (this.dropdownElement) this.dropdownElement.appendChild(this.listElement);
+  }
+
+  private createItems(
+    data: TreeRecord[],
+    level: number = 0,
+    parentElement?: HTMLElement | null,
+    parent?: string
+  ): void {
     if (level > this.itemLevels) this.itemLevels = level;
 
     data.forEach(record => {
-      const id = `${level}-${record.id}`;
-
-      this.items.set(id, {
-        id,
+      let item: TreeItem = {
+        id: `${level}-${record.id}`,
         parent,
         children: record.children?.map(child => `${level + 1}-${child.id}`),
         level,
         name: record.name,
         checked: false,
         indeterminate: false,
-        collapsed: level > this.settings.openLevel,
+        collapsed: true,
         hidden: false,
         itemElement: null,
         checkboxElement: null,
         collapseElement: null,
-      });
-
-      if (record.children) {
-        this.buildItems(record.children, level + 1, id);
-      }
-    });
-  }
-
-  private renderItems(
-    data: TreeRecord[],
-    level: number = 0,
-    parent: HTMLElement | null = this.listElement
-  ): void {
-    if (this.itemsRendered) return;
-
-    data.forEach(record => {
-      const id = `${level}-${record.id}`;
-      const item = this.items.get(id);
-
-      if (!item) return;
+        childrenElement: null,
+      };
 
       const itemElement = createItem(this.settings.itemClassName);
       const checkboxElement = createCheckbox(this.settings.checkboxClassName);
-      const collapseElement = createCollapse(this.settings.collapseClassName);
+      checkboxElement.addEventListener('click', event => this.onItemSelect(event, item));
 
-      itemElement.appendChild(collapseElement);
       itemElement.appendChild(checkboxElement);
       itemElement.appendChild(document.createTextNode(record.name));
 
-      this.items.set(id, { ...item, itemElement, checkboxElement, collapseElement });
-
-      if (parent) parent.appendChild(itemElement);
-
+      let collapseElement: HTMLElement | null = null;
+      let childrenElement: HTMLElement | null = null;
       if (record.children) {
-        const container = createItemChildren();
-        itemElement.appendChild(container);
+        collapseElement = createCollapse(this.settings.collapseClassName);
+        collapseElement.addEventListener('click', event => this.onItemCollapse(event, item));
+        itemElement.appendChild(collapseElement);
 
-        this.renderItems(record.children, level + 1, container);
+        childrenElement = createItemChildren();
+        itemElement.appendChild(childrenElement);
+
+        this.createItems(record.children, level + 1, childrenElement, item.id);
+      }
+
+      if (parentElement) parentElement.appendChild(itemElement);
+
+      item.itemElement = itemElement;
+      item.checkboxElement = checkboxElement;
+      item.collapseElement = collapseElement;
+      item.childrenElement = childrenElement;
+
+      this.items.set(item.id, item);
+    });
+  }
+
+  private updateDOM(): void {
+    this.items.forEach(item => {
+      visible(item.childrenElement, !item.collapsed);
+      visible(item.itemElement, !item.hidden);
+      if (item.collapseElement)
+        item.collapseElement.innerHTML = item.collapsed
+          ? this.settings.collapsedContent
+          : this.settings.expandedContent;
+
+      if (item.checkboxElement) {
+        item.checkboxElement.checked = item.checked;
+        item.checkboxElement.indeterminate = item.indeterminate;
       }
     });
   }
@@ -202,14 +232,52 @@ export class TreeSelect {
   // callbacks
 
   private onLoad(): void {
+    this.loaded = true;
+    this.loading = false;
+
+    this.createList();
+
     if (this.settings.onLoad) this.settings.onLoad(this.data);
   }
 
-  private onSelect(selected: string[]): void {
-    if (this.settings.onSelect) this.settings.onSelect(selected);
+  private onItemSelect(_event: Event, item: TreeItem): void {
+    item.checked = !item.checked;
+    item.indeterminate = false;
+
+    updateChildrenCheckedState(this.items, item, item.checked);
+    updateParentCheckedState(this.items, item);
+
+    this.updateDOM();
+
+    if (this.settings.onSelect) this.settings.onSelect(this.selected);
   }
 
-  private onSearch(search: string): void {
+  private onItemCollapse(_event: Event, item: TreeItem): void {
+    item.collapsed = !item.collapsed;
+
+    this.updateDOM();
+  }
+
+  private onSearch(event: Event): void {
+    const search = (event.target as HTMLInputElement).value;
+
+    if (search.length === 0) {
+      updateAll(this.items, { hidden: false, collapsed: true });
+    } else {
+      updateAll(this.items, { hidden: true, collapsed: false });
+      updateAll(this.items, item => {
+        const match = item.name.toLowerCase().includes(search.toLowerCase());
+        if (!match) return;
+
+        item.hidden = false;
+
+        updateChildrenVisibleState(this.items, item);
+        updateParentVisibleState(this.items, item);
+      });
+    }
+
+    this.updateDOM();
+
     if (this.settings.onSearch) this.settings.onSearch(search);
   }
 
@@ -223,6 +291,16 @@ export class TreeSelect {
 
   private onClose(): void {
     if (this.settings.onClose) this.settings.onClose();
+  }
+
+  private onClick(_event: Event): void {
+    this.open();
+  }
+
+  private onClickOutside(event: Event): void {
+    if (this.wrapperElement?.contains(event.target as Node)) return;
+
+    this.close();
   }
 }
 
