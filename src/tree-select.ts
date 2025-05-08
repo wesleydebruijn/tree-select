@@ -1,4 +1,4 @@
-import "./styles.css";
+import "./tree-select.css";
 import { className, create, debounce, visible } from "./utils/dom";
 import { getInputElement, getInputValues, setInputValues } from "./utils/input";
 import {
