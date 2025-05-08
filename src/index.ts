@@ -5,7 +5,7 @@ import {
   updateItems,
   updateItemDescendants,
   updateItemAscendants,
-  propagateItem,
+  selectItem,
   populateItems,
 } from './utils/items';
 
@@ -57,11 +57,13 @@ export class TreeSelect {
   public items: Map<string, TreeItem> = new Map();
   public depth: number = 0;
 
-  public rootElement: HTMLInputElement | HTMLSelectElement;
-  public controlElement: HTMLElement | null = null;
-  public wrapperElement: HTMLElement | null = null;
-  public dropdownElement: HTMLElement | null = null;
-  public loadingElement: HTMLElement | null = null;
+  public lastSelectedItem: TreeItem | null = null;
+
+  private rootElement: HTMLInputElement | HTMLSelectElement;
+  private controlElement: HTMLElement | null = null;
+  private wrapperElement: HTMLElement | null = null;
+  private dropdownElement: HTMLElement | null = null;
+  private loadingElement: HTMLElement | null = null;
 
   constructor(
     input: HTMLInputElement | HTMLSelectElement | string,
@@ -97,7 +99,6 @@ export class TreeSelect {
     if (!this.loaded && !this.loading) debounce(() => this.load(), 0)();
 
     this.opened = true;
-    this.controlElement?.focus();
     className(this.controlElement, `${cls.control}--focus`, true);
     visible(this.dropdownElement, true);
 
@@ -268,10 +269,10 @@ export class TreeSelect {
 
     className(item.collapseElement, `${cls.itemCollapse}--collapsed`, item.collapsed);
 
-    if (item.checkboxElement) {
-      item.checkboxElement.checked = item.checked;
-      item.checkboxElement.indeterminate = item.indeterminate;
-    }
+    if (!item.checkboxElement) return;
+
+    item.checkboxElement.checked = item.checked;
+    item.checkboxElement.indeterminate = item.indeterminate;
   }
 
   private onLoad(data: Data[]): void {
@@ -284,14 +285,29 @@ export class TreeSelect {
     if (this.settings.onLoad) this.settings.onLoad(data);
   }
 
-  private onItemSelect(event: Event, item: TreeItem): void {
+  private onItemSelect(event: MouseEvent, item: TreeItem): void {
     event.stopPropagation();
 
-    item.checked = !item.checked;
-    item.indeterminate = false;
+    if (event.shiftKey && this.lastSelectedItem) {
+      // get all items at same depth
+      const itemsAtDepth = Array.from(this.items.values()).filter(i => i.depth === item.depth);
 
-    updateItemDescendants(this.items, item, { checked: item.checked, indeterminate: false });
-    updateItemAscendants(this.items, item, item => propagateItem(this.items, item));
+      // find indices of current and last selected items
+      const currentIndex = itemsAtDepth.indexOf(item);
+      const lastIndex = itemsAtDepth.indexOf(this.lastSelectedItem);
+
+      // get range of items between current and last selected
+      const start = Math.min(currentIndex, lastIndex + 1);
+      const end = Math.max(currentIndex, lastIndex - 1);
+      const itemsToUpdate = itemsAtDepth.slice(start, end + 1);
+
+      // update all items in range
+      itemsToUpdate.forEach(item => selectItem(this.items, item));
+    } else {
+      selectItem(this.items, item);
+
+      this.lastSelectedItem = item;
+    }
 
     this.selected = Array.from(this.items.values())
       .filter(item => item.checked && item.depth === this.depth)
@@ -341,10 +357,6 @@ export class TreeSelect {
     if (event.key === 'Escape') this.close();
   }
 
-  private onOpen(): void {
-    if (this.settings.onOpen) this.settings.onOpen();
-  }
-
   private onClear(): void {
     this.selected = [];
 
@@ -355,6 +367,10 @@ export class TreeSelect {
     this.renderControl();
 
     if (this.settings.onClear) this.settings.onClear();
+  }
+
+  private onOpen(): void {
+    if (this.settings.onOpen) this.settings.onOpen();
   }
 
   private onClose(): void {

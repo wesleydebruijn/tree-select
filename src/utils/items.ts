@@ -75,6 +75,14 @@ export function updateItemAscendants(
   updateItemAscendants(items, parent, fn);
 }
 
+export function selectItem(items: Map<string, TreeItem>, item: TreeItem): void {
+  item.checked = !item.checked;
+  item.indeterminate = false;
+
+  updateItemDescendants(items, item, { checked: item.checked, indeterminate: false });
+  updateItemAscendants(items, item, item => propagateItem(items, item));
+}
+
 export function propagateItem(items: Map<string, TreeItem>, item: TreeItem): void {
   if (!item.children) return;
 
