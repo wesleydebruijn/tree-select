@@ -210,7 +210,7 @@ export class TreeSelect {
     // populate the items
     populateItems(this.items, item => this.selected.includes(item.id) && item.depth === this.depth);
 
-    this.items.forEach(this.renderItem);
+    this.render();
 
     // append the list element to the dropdown element
     visible(this.loadingElement, false);
@@ -257,10 +257,11 @@ export class TreeSelect {
     element.appendChild(item.itemElement);
   }
 
-  private renderControl(): void {
-    if (!this.controlElement) return;
+  private render(): void {
+    this.items.forEach(this.renderItem);
 
-    this.controlElement.innerHTML = `${this.selected.length} ${this.settings.selectedText}`;
+    if (this.controlElement)
+      this.controlElement.innerHTML = `${this.selected.length} ${this.settings.selectedText}`;
   }
 
   private renderItem(item: TreeItem): void {
@@ -315,8 +316,7 @@ export class TreeSelect {
 
     setInputValues(this.rootElement, this.selected, this.settings.delimiter);
 
-    this.items.forEach(this.renderItem);
-    this.renderControl();
+    this.render();
 
     if (this.settings.onSelect) this.settings.onSelect(this.selected);
   }
@@ -327,7 +327,7 @@ export class TreeSelect {
     this.renderItem(item);
   }
 
-  private onSearch(event: Event): void {
+  private onSearch(event: InputEvent): void {
     const search = (event.target as HTMLInputElement).value;
     if (search === this.search) return;
 
@@ -348,7 +348,7 @@ export class TreeSelect {
       });
     }
 
-    this.items.forEach(this.renderItem);
+    this.render();
 
     if (this.settings.onSearch) this.settings.onSearch(search);
   }
@@ -363,8 +363,7 @@ export class TreeSelect {
     updateItems(this.items, { checked: false, indeterminate: false });
     setInputValues(this.rootElement, this.selected, this.settings.delimiter);
 
-    this.items.forEach(this.renderItem);
-    this.renderControl();
+    this.render();
 
     if (this.settings.onClear) this.settings.onClear();
   }
@@ -391,8 +390,7 @@ export class TreeSelect {
 
     populateItems(this.items, item => this.selected.includes(item.id) && item.depth === this.depth);
 
-    this.items.forEach(this.renderItem);
-    this.renderControl();
+    this.render();
   }
 }
 
