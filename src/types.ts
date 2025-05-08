@@ -26,8 +26,12 @@ export interface TreeSettings {
   open: boolean;
   placeholder: string;
   delimiter: string;
+  collapseDepth: number;
+  checkboxDepth: number;
+  headingText?: string;
   loadingText: string;
   selectedText: string;
+  clearText: string;
   data?: Data[];
   dataSrc?: string;
 
@@ -35,15 +39,18 @@ export interface TreeSettings {
   controlClassName?: string;
   searchClassName?: string;
   dropdownClassName?: string;
+  headingClassName?: string;
   loadingClassName?: string;
   listClassName?: string;
   itemClassName?: string;
   checkboxClassName?: string;
   collapseClassName?: string;
+  clearClassName?: string;
 
   onOpen?: () => void;
   onClose?: () => void;
   onSelect?: (selected: string[]) => void;
   onSearch?: (search: string) => void;
   onLoad?: (data: Data[]) => void;
+  onClear?: () => void;
 }

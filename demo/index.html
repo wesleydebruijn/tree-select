@@ -13,17 +13,16 @@
 
         section {
             margin-bottom: 2rem;
-            padding: 1rem;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
         }
 
-        .select-input {
+        .input, .select {
             border: 1px solid #e0e0e0;
             border-radius: 4px;
             padding: 5px 10px;
             width: 200px;
+        }
 
+        .select {
             background-image: url("data:image/svg+xml,%3Csvg fill='none' height='24' stroke='rgb(88 117 140)' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 0.75rem center;
@@ -35,25 +34,50 @@
             position: relative;
         }
 
+        .tree-select-control {
+            cursor: pointer;
+        }
+
+        .tree-select-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
         .tree-select-search {
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            padding: 5px 10px;
+            padding: 2px;
+            width: 100%;
+            outline: none;
         }
 
         .tree-select-dropdown {
             position: absolute;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
             top: calc(100% + 5px);
             left: 0;
-            border-radius: 4px;
-            border: 1px solid #e0e0e0;
-            background-color: #fff;
+            background-color: #ffffff;
             padding: 8px 10px;
             max-height: 300px;
+            z-index: 1;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+        }
+
+        .tree-select-clear {
+            cursor: pointer;
+            font-size: 12px;
+            color: #666;
+            width: max-content;
+        }
+
+        .tree-select-list {
+            width: 100%;
             overflow-y: auto;
             scrollbar-width: none;
             -ms-overflow-style: none;
-            z-index: 1;
         }
 
         .tree-select-item-label {
@@ -88,12 +112,12 @@
 
     <section>
         <h2>Input</h2>
-        <input type="text" class="select-input" id="input" value="3,4" />
+        <input type="text" class="input" id="input" value="3,4" />
     </section>
 
     <section>
-        <h2>Select (Multiple)</h2>
-        <select type="text" class="select-input" id="multi-select" multiple>
+        <h2>Select</h2>
+        <select type="text" class="select" id="multi-select" multiple>
             <option value="3" selected>3</option>
             <option value="4" selected>4</option>
         </select>
