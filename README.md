@@ -83,7 +83,7 @@ const treeSelect = new TreeSelect('#tree-select', {
 
   // HTML customization
   html: {
-    wrapper: { className: 'custom-wrapper' },
+    wrapper: { className: 'custom-wrapper', data: { value: "custom" } },
     control: { className: 'custom-control' },
     // ... customize other elements
   },
