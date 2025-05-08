@@ -1,10 +1,9 @@
 # Tree Select
 
-A lightweight, vanilla JavaScript tree select component that transforms HTML inputs and selects into hierarchical trees.
+A dynamic, lightweight (~3kb gzipped), zero-dependency UI control that transforms <select> or <input> elements into interactive hierarchical trees with checkboxes.
 
 ## Features
 
-- Hierarchical tree of checkboxes
 - Async data fetching
 - Customizable depth for collapsing, checkboxes and values
 - Parent/child selection propagation
