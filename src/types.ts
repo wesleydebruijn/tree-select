@@ -42,15 +42,19 @@ export type TreeHTMLElement =
 export interface TreeSettings {
   open: boolean;
   delimiter: string;
-  collapseDepth: number;
-  checkboxDepth: number;
-  searchText?: string;
-  headingText?: string;
-  loadingText: string;
-  selectedText: string;
-  clearText: string;
+  depthCollapsable: number;
+  depthCollapsed: number;
+  depthCheckboxes: number;
+  depthValues: number | 'last';
   data?: Data[];
   dataSrc?: string;
+  text: {
+    heading?: string;
+    selected?: string;
+    clear?: string;
+    loading?: string;
+    search?: string;
+  };
   html: {
     [key in TreeHTMLElement]?: { className?: string; data?: object };
   };

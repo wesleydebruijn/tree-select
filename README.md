@@ -1,1 +1,180 @@
-# tree-select
+# Tree Select
+
+A customizable tree select component for web applications.
+
+## Installation
+
+```bash
+npm install tree-select
+```
+
+## Usage
+
+### Basic Usage
+
+```html
+<input type="text" id="tree-select" value="1,2" />
+```
+
+or
+
+```html
+<select id="tree-select" multiple>
+  <option value="1" selected>1</option>
+  <option value="2" selected>2</option>
+  <option value="3">3</option>
+</select>
+```
+
+```typescript
+import { TreeSelect } from 'tree-select';
+
+const treeSelect = new TreeSelect('#tree-select', {
+  data: [
+    {
+      id: '1',
+      name: 'Parent 1',
+      children: [
+        { id: '1-1', name: 'Child 1-1' },
+        { id: '1-2', name: 'Child 1-2' },
+      ],
+    },
+    {
+      id: '2',
+      name: 'Parent 2',
+      children: [
+        { id: '2-1', name: 'Child 2-1' },
+        { id: '2-2', name: 'Child 2-2' },
+      ],
+    },
+  ],
+  text: {
+    search: 'Search items...',
+    selected: 'items selected',
+    clear: 'Clear',
+    loading: 'Loading...',
+  },
+});
+```
+
+### Advanced Configuration
+
+```typescript
+const treeSelect = new TreeSelect('#tree-select', {
+  // Initial state
+  open: false,
+
+  // Data configuration
+  data: [...], // Tree data
+  dataSrc: 'api/tree-data', // Or load from URL
+
+  // Depth settings
+  depthCollapsable: 0, // Depth at which items become collapsible
+  depthCollapsed: 0,   // Depth at which items are collapsed by default
+  depthCheckboxes: 0,  // Depth at which checkboxes appear
+  depthValues: 'last', // Use 'last' or number to specify which depth values are used
+
+  // Text customization
+  text: {
+    heading: 'Select Items',
+    search: 'Search...',
+    selected: 'selected',
+    clear: 'Clear',
+    loading: 'Loading...'
+  },
+
+  // HTML customization
+  html: {
+    wrapper: { className: 'custom-wrapper' },
+    control: { className: 'custom-control' },
+    // ... customize other elements
+  },
+
+  // Event handlers
+  onOpen: () => console.log('Opened'),
+  onClose: () => console.log('Closed'),
+  onSelect: (selected) => console.log('Selected:', selected),
+  onSearch: (search) => console.log('Searching:', search),
+  onLoad: (data) => console.log('Data loaded:', data),
+  onClear: () => console.log('Cleared')
+});
+```
+
+### Methods
+
+```typescript
+// Open the dropdown
+treeSelect.open();
+
+// Close the dropdown
+treeSelect.close();
+
+// Load data & HTML tree to the DOM
+treeSelect.load();
+
+// Destroy the instance and return to original input/select
+treeSelect.destroy();
+```
+
+### Data Structure
+
+```typescript
+interface Data {
+  id: string | number;
+  name: string;
+  children?: Data[];
+}
+```
+
+## Features
+
+- Hierarchical checkbox tree structure
+- Search/filter functionality
+- Customizable depth for collapsing, checkboxes and values
+- Parent/child selection propagation
+- Supports both input and select elements
+- Fully customizable styling
+- TypeScript support
+
+## Settings
+
+| Setting          | Type             | Default      | Description                                 |
+| ---------------- | ---------------- | ------------ | ------------------------------------------- |
+| open             | boolean          | false        | Whether dropdown should be open initially   |
+| delimiter        | string           | ','          | Delimiter for input values                  |
+| depthCollapsable | number           | 0            | Depth at which nodes become collapsible     |
+| depthCollapsed   | number           | 0            | Depth at which nodes start collapsed        |
+| depthCheckboxes  | number           | 0            | Depth at which checkboxes start appearing   |
+| depthValues      | number \| 'last' | 'last'       | Depth at which values start being collected |
+| text             | object           | {}           | Text customization options                  |
+| text.selected    | string           | 'selected'   | Text shown after selected count             |
+| text.clear       | string           | 'clear'      | Text for clear button                       |
+| text.loading     | string           | 'Loading...' | Text shown while loading                    |
+| text.search      | string           | 'Search...'  | Placeholder text for search input           |
+| html             | object           | {}           | HTML class names customization              |
+| onLoad           | function         | undefined    | Callback when data is loaded                |
+| onOpen           | function         | undefined    | Callback when dropdown opens                |
+| onClose          | function         | undefined    | Callback when dropdown closes               |
+| onClear          | function         | undefined    | Callback when selection is cleared          |
+| onSearch         | function         | undefined    | Callback when search is performed           |
+| onSelect         | function         | undefined    | Callback when items are selected/deselected |
+
+## HTML Elements
+
+| Element     | Class Name               | Description                                       |
+| ----------- | ------------------------ | ------------------------------------------------- |
+| wrapper     | tree-select-wrapper      | Container element wrapping the entire component   |
+| control     | tree-select-control      | Main control element showing selected count       |
+| dropdown    | tree-select-dropdown     | Dropdown container that appears when opened       |
+| heading     | tree-select-heading      | Heading section containing title and clear button |
+| headingSpan | tree-select-heading-span | Text element within heading showing title         |
+| clear       | tree-select-clear        | Clear button to remove all selections             |
+| search      | tree-select-search       | Search input field for filtering items            |
+| loading     | tree-select-loading      | Loading indicator shown while data loads          |
+| list        | tree-select-list         | Container for the tree structure                  |
+| item        | tree-select-item         | Individual item in the tree                       |
+| checkbox    | tree-select-checkbox     | Checkbox input for selecting items                |
+| collapse    | tree-select-collapse     | Toggle button for expanding/collapsing nodes      |
+| label       | tree-select-label        | Label container for item text and controls        |
+| labelSpan   | tree-select-label-span   | Text element within item label                    |
+| children    | tree-select-children     | Container for child items                         |
