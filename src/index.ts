@@ -111,9 +111,9 @@ export class TreeSelect {
   }
 
   public async load(): Promise<void> {
-    if (!this.settings.src) return this.onLoad(this.settings.data || []);
+    if (!this.settings.dataSrc) return this.onLoad(this.settings.data || []);
 
-    return fetch(this.settings.src)
+    return fetch(this.settings.dataSrc)
       .then(response => response.json())
       .then(this.onLoad);
   }

@@ -30,7 +30,7 @@ export interface TreeSettings {
   loadingText: string;
   selectedText: string;
   data?: Data[];
-  src?: string;
+  dataSrc?: string;
 
   wrapperClassName?: string;
   controlClassName?: string;
