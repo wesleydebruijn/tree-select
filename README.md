@@ -1,6 +1,6 @@
 # Tree Select
 
-A dynamic, lightweight (~3kb gzipped), zero-dependency UI control that transforms <select> or <input> elements into interactive hierarchical trees with checkboxes.
+A dynamic, lightweight (~3kb gzipped), zero-dependency UI control that transforms `<select>` or `<input>` elements into interactive hierarchical trees with checkboxes.
 
 ## Features
 
