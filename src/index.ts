@@ -291,7 +291,7 @@ export class TreeSelect {
     } else {
       updateItems(this.items, { hidden: true, collapsed: true });
       updateItems(this.items, item => {
-        const match = item.search.includes(this.search.toLowerCase());
+        const match = item.fullName.toLowerCase().includes(this.search.toLowerCase());
         if (!match) return;
 
         item.hidden = false;

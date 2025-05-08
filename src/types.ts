@@ -11,11 +11,11 @@ export interface TreeItem {
   children?: string[];
   depth: number;
   name: string;
+  fullName: string;
   checked: boolean;
   indeterminate: boolean;
   collapsed: boolean;
   hidden: boolean;
-  search: string;
   itemElement: HTMLElement | null;
   checkboxElement: HTMLInputElement | null;
   collapseElement: HTMLElement | null;

@@ -16,7 +16,7 @@ export function createItems(
       depth,
       id: `${record.id}`,
       name: record.name,
-      search: parent ? `${parent.search} ${record.name.toLowerCase()}` : record.name.toLowerCase(),
+      fullName: parent ? `${parent.fullName} ${record.name}` : record.name,
       checked: false,
       indeterminate: false,
       collapsed: true,
