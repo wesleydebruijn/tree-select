@@ -1,4 +1,3 @@
-import { defaults, classNames as cls } from './constants';
 import { debounce, create, visible } from './utils/global';
 import { getInputElement, getInputValues, setInputValues } from './utils/input';
 import {
@@ -18,8 +17,27 @@ declare global {
   }
 }
 
+const cls = {
+  wrapper: 'tree-select-wrapper',
+  search: 'tree-select-search',
+  dropdown: 'tree-select-dropdown',
+  list: 'tree-select-list',
+  item: 'tree-select-item',
+  loading: 'tree-select-loading',
+  itemChildren: 'tree-select-item-children',
+  itemCheckbox: 'tree-select-item-checkbox',
+  itemCollapse: 'tree-select-item-collapse',
+  itemLabel: 'tree-select-item-label',
+};
+
 export class TreeSelect {
-  public settings: TreeSettings;
+  public settings: TreeSettings = {
+    open: false,
+    multiple: false,
+    placeholder: 'Search...',
+    delimiter: ',',
+    loadingText: 'Loading...',
+  };
 
   public opened: boolean = false;
   public loaded: boolean = false;
@@ -44,7 +62,7 @@ export class TreeSelect {
     input: HTMLInputElement | HTMLSelectElement | string,
     settings: Partial<TreeSettings> = {}
   ) {
-    this.settings = { ...defaults, ...settings };
+    this.settings = Object.assign(this.settings, settings);
 
     this.onLoad = this.onLoad.bind(this);
     this.onChange = this.onChange.bind(this);
