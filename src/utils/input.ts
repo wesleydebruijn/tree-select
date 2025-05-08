@@ -5,6 +5,7 @@ export function getInputElement(
     const element = document.querySelector<HTMLInputElement | HTMLSelectElement>(input);
 
     if (!element) throw new Error(`Element ${input} not found`);
+    if (element.treeSelect) throw new Error('TreeSelect already initialized on element');
 
     return element;
   }

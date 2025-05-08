@@ -44,24 +44,24 @@ export class TreeSelect {
     settings: Partial<TreeSettings> = {}
   ) {
     this.settings = { ...defaults, ...settings };
+
+    this.onLoad = this.onLoad.bind(this);
     this.onChange = this.onChange.bind(this);
     this.onFocus = this.onFocus.bind(this);
     this.onSearch = this.onSearch.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
     this.mountItem = this.mountItem.bind(this);
+    this.updateDOM = this.updateDOM.bind(this);
 
     // initialize the root input element
     this.inputElement = getInputElement(input);
-
-    if (this.inputElement.treeSelect)
-      throw new Error('TreeSelect already initialized on this element');
-
     this.inputElement.treeSelect = this;
     this.inputElement.addEventListener('change', this.onChange);
 
-    this.data = this.settings.data || [];
+    // initialize the selected values
     this.selected = getInputValues(this.inputElement, this.settings.delimiter);
 
+    // mount initial HTML to the DOM, without fetching data
     this.mount();
 
     if (this.settings.open) this.open();
@@ -87,14 +87,11 @@ export class TreeSelect {
   }
 
   public async load(): Promise<void> {
-    if (!this.settings.src) return this.onLoad();
+    if (!this.settings.src) return this.onLoad(this.settings.data || []);
 
     return fetch(this.settings.src)
       .then(response => response.json())
-      .then((data: Data[]) => {
-        this.data = data;
-        this.onLoad();
-      });
+      .then(this.onLoad);
   }
 
   public destroy(): void {
@@ -148,7 +145,7 @@ export class TreeSelect {
     // populate the items
     populateItems(this.items, item => this.selected.includes(item.id) && item.depth === this.depth);
 
-    this.updateDOM();
+    this.items.forEach(this.updateDOM);
 
     // append the list element to the dropdown element
     if (this.dropdownElement) this.dropdownElement.appendChild(this.listElement);
@@ -188,29 +185,26 @@ export class TreeSelect {
     element.appendChild(item.itemElement);
   }
 
-  private updateDOM(): void {
-    this.items.forEach(item => {
-      visible(item.childrenElement, !item.collapsed);
-      visible(item.itemElement, !item.hidden);
+  private updateDOM(item: TreeItem): void {
+    visible(item.childrenElement, !item.collapsed);
+    visible(item.itemElement, !item.hidden);
 
-      if (item.collapseElement) item.collapseElement.innerHTML = item.collapsed ? '▶' : '▼';
+    if (item.collapseElement) item.collapseElement.innerHTML = item.collapsed ? '▶' : '▼';
 
-      if (item.checkboxElement) {
-        item.checkboxElement.checked = item.checked;
-        item.checkboxElement.indeterminate = item.indeterminate;
-      }
-    });
+    if (item.checkboxElement) {
+      item.checkboxElement.checked = item.checked;
+      item.checkboxElement.indeterminate = item.indeterminate;
+    }
   }
 
-  // callbacks
-
-  private onLoad(): void {
+  private onLoad(data: Data[]): void {
+    this.data = data;
     this.loaded = true;
     this.loading = false;
 
     if (!this.mounted) this.mountItems();
 
-    if (this.settings.onLoad) this.settings.onLoad(this.data);
+    if (this.settings.onLoad) this.settings.onLoad(data);
   }
 
   private onItemSelect(_event: Event, item: TreeItem): void {
@@ -226,7 +220,7 @@ export class TreeSelect {
 
     setInputValues(this.inputElement, this.selected, this.settings.delimiter);
 
-    this.updateDOM();
+    this.items.forEach(this.updateDOM);
 
     if (this.settings.onSelect) this.settings.onSelect(this.selected);
   }
@@ -236,7 +230,7 @@ export class TreeSelect {
 
     item.collapsed = !item.collapsed;
 
-    this.updateDOM();
+    this.items.forEach(this.updateDOM);
   }
 
   private onSearch(event: Event): void {
@@ -260,7 +254,7 @@ export class TreeSelect {
       });
     }
 
-    this.updateDOM();
+    this.items.forEach(this.updateDOM);
 
     if (this.settings.onSearch) this.settings.onSearch(search);
   }
