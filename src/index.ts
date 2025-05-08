@@ -33,7 +33,7 @@ export class TreeSelect {
   public items: Map<string, TreeItem> = new Map();
   public depth: number = 0;
 
-  public inputElement: HTMLInputElement | HTMLSelectElement;
+  public rootElement: HTMLInputElement | HTMLSelectElement;
   public wrapperElement: HTMLElement | null = null;
   public searchElement: HTMLInputElement | null = null;
   public dropdownElement: HTMLElement | null = null;
@@ -51,15 +51,15 @@ export class TreeSelect {
     this.onSearch = this.onSearch.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
     this.mountItem = this.mountItem.bind(this);
-    this.updateDOM = this.updateDOM.bind(this);
+    this.renderItem = this.renderItem.bind(this);
 
     // initialize the root input element
-    this.inputElement = getInputElement(input);
-    this.inputElement.treeSelect = this;
-    this.inputElement.addEventListener('change', this.onChange);
+    this.rootElement = getInputElement(input);
+    this.rootElement.treeSelect = this;
+    this.rootElement.addEventListener('change', this.onChange);
 
     // initialize the selected values
-    this.selected = getInputValues(this.inputElement, this.settings.delimiter);
+    this.selected = getInputValues(this.rootElement, this.settings.delimiter);
 
     // mount initial HTML to the DOM, without fetching data
     this.mount();
@@ -100,17 +100,17 @@ export class TreeSelect {
 
     if (this.wrapperElement) this.wrapperElement.remove();
 
-    visible(this.inputElement, true);
+    visible(this.rootElement, true);
 
-    this.inputElement.treeSelect = null;
-    this.inputElement.removeEventListener('change', this.onChange);
+    this.rootElement.treeSelect = null;
+    this.rootElement.removeEventListener('change', this.onChange);
   }
 
   private mount(): void {
     // create the wrapper element
     this.wrapperElement = create('div', [cls.wrapper, this.settings.wrapperClassName]);
     this.wrapperElement.addEventListener('keydown', this.onKeyDown);
-    this.inputElement.after(this.wrapperElement);
+    this.rootElement.after(this.wrapperElement);
 
     // create the search element
     this.searchElement = create('input', [cls.search, this.settings.searchClassName]);
@@ -128,7 +128,7 @@ export class TreeSelect {
     document.addEventListener('focus', this.onFocus, true);
 
     // hide the initial input element
-    visible(this.inputElement, false);
+    visible(this.rootElement, false);
   }
 
   private mountItems(): void {
@@ -145,7 +145,7 @@ export class TreeSelect {
     // populate the items
     populateItems(this.items, item => this.selected.includes(item.id) && item.depth === this.depth);
 
-    this.items.forEach(this.updateDOM);
+    this.items.forEach(this.renderItem);
 
     // append the list element to the dropdown element
     if (this.dropdownElement) this.dropdownElement.appendChild(this.listElement);
@@ -185,7 +185,7 @@ export class TreeSelect {
     element.appendChild(item.itemElement);
   }
 
-  private updateDOM(item: TreeItem): void {
+  private renderItem(item: TreeItem): void {
     visible(item.childrenElement, !item.collapsed);
     visible(item.itemElement, !item.hidden);
 
@@ -218,9 +218,9 @@ export class TreeSelect {
       .filter(item => item.checked && item.depth === this.depth)
       .map(item => item.id);
 
-    setInputValues(this.inputElement, this.selected, this.settings.delimiter);
+    setInputValues(this.rootElement, this.selected, this.settings.delimiter);
 
-    this.items.forEach(this.updateDOM);
+    this.items.forEach(this.renderItem);
 
     if (this.settings.onSelect) this.settings.onSelect(this.selected);
   }
@@ -230,7 +230,7 @@ export class TreeSelect {
 
     item.collapsed = !item.collapsed;
 
-    this.items.forEach(this.updateDOM);
+    this.renderItem(item);
   }
 
   private onSearch(event: Event): void {
@@ -254,7 +254,7 @@ export class TreeSelect {
       });
     }
 
-    this.items.forEach(this.updateDOM);
+    this.items.forEach(this.renderItem);
 
     if (this.settings.onSearch) this.settings.onSearch(search);
   }
@@ -280,12 +280,12 @@ export class TreeSelect {
   }
 
   private onChange(_event: Event): void {
-    this.selected = getInputValues(this.inputElement, this.settings.delimiter);
+    this.selected = getInputValues(this.rootElement, this.settings.delimiter);
     if (!this.mounted) return;
 
     populateItems(this.items, item => this.selected.includes(item.id) && item.depth === this.depth);
 
-    this.updateDOM();
+    this.items.forEach(this.renderItem);
   }
 }
 
