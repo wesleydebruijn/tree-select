@@ -23,21 +23,21 @@ export interface TreeItem {
 }
 
 export type TreeHTMLElement =
-  | 'wrapper'
-  | 'control'
-  | 'search'
-  | 'dropdown'
-  | 'heading'
-  | 'headingSpan'
-  | 'loading'
-  | 'list'
-  | 'item'
-  | 'checkbox'
-  | 'collapse'
-  | 'clear'
-  | 'label'
-  | 'labelSpan'
-  | 'children';
+  | "wrapper"
+  | "control"
+  | "search"
+  | "dropdown"
+  | "heading"
+  | "headingSpan"
+  | "loading"
+  | "list"
+  | "item"
+  | "checkbox"
+  | "collapse"
+  | "clear"
+  | "label"
+  | "labelSpan"
+  | "children";
 
 export interface TreeSettings {
   open: boolean;
@@ -45,7 +45,7 @@ export interface TreeSettings {
   depthCollapsable: number;
   depthCollapsed: number;
   depthCheckboxes: number;
-  depthValues: number | 'last';
+  depthValues: number | "last";
   data?: Data[];
   dataSrc?: string;
   text: {

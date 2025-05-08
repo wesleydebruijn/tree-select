@@ -1,15 +1,16 @@
-import { debounce, className, create, visible } from './utils/dom';
-import { getInputElement, getInputValues, setInputValues } from './utils/input';
+import "./styles.css";
+import { className, create, debounce, visible } from "./utils/dom";
+import { getInputElement, getInputValues, setInputValues } from "./utils/input";
 import {
   createItems,
-  updateItems,
-  updateItemDescendants,
-  updateItemAscendants,
-  selectItem,
   populateItems,
-} from './utils/items';
+  selectItem,
+  updateItemAscendants,
+  updateItemDescendants,
+  updateItems,
+} from "./utils/items";
 
-import type { TreeItem, TreeSettings, Data } from './types';
+import type { Data, TreeItem, TreeSettings } from "./types";
 
 declare global {
   interface HTMLElement {
@@ -20,32 +21,32 @@ declare global {
 export class TreeSelect {
   public settings: TreeSettings = {
     open: false,
-    delimiter: ',',
+    delimiter: ",",
     depthCollapsable: 0,
     depthCollapsed: 0,
     depthCheckboxes: 0,
-    depthValues: 'last',
+    depthValues: "last",
     text: {
-      selected: 'selected',
-      clear: 'clear',
-      loading: 'Loading...',
-      search: 'Search...',
+      selected: "selected",
+      clear: "clear",
+      loading: "Loading...",
+      search: "Search...",
     },
     html: {},
   };
 
-  public opened: boolean = false;
-  public loaded: boolean = false;
-  public loading: boolean = false;
-  public mounted: boolean = false;
-  public search: string = '';
+  public opened = false;
+  public loaded = false;
+  public loading = false;
+  public mounted = false;
+  public search = "";
 
   public data: Data[] = [];
-  public selected: string[] = [];
+  public values: string[] = [];
 
   public items: Map<string, TreeItem> = new Map();
-  public depth: number = 0;
-  public depthValues: number = 0;
+  public depth = 0;
+  public depthValues = 0;
 
   public lastSelectedItem: TreeItem | null = null;
 
@@ -57,7 +58,7 @@ export class TreeSelect {
 
   constructor(
     input: HTMLInputElement | HTMLSelectElement | string,
-    settings: Partial<TreeSettings> = {}
+    settings: Partial<TreeSettings> = {},
   ) {
     this.settings = Object.assign(this.settings, settings);
 
@@ -73,10 +74,10 @@ export class TreeSelect {
     // initialize the root input element
     this.rootElement = getInputElement(input);
     this.rootElement.treeSelect = this;
-    this.rootElement.addEventListener('change', this.onChange);
+    this.rootElement.addEventListener("change", this.onChange);
 
     // initialize the selected values
-    this.selected = getInputValues(this.rootElement, this.settings.delimiter);
+    this.values = getInputValues(this.rootElement, this.settings.delimiter);
 
     // mount initial HTML to the DOM, without fetching data or rendering tree
     this.initMount();
@@ -89,7 +90,7 @@ export class TreeSelect {
     if (!this.loaded && !this.loading) debounce(() => this.load(), 0)();
 
     this.opened = true;
-    className(this.controlElement, 'focus', true);
+    className(this.controlElement, "focus", true);
     visible(this.dropdownElement, true);
 
     this.onOpen();
@@ -99,7 +100,7 @@ export class TreeSelect {
     if (!this.opened) return;
 
     this.opened = false;
-    className(this.controlElement, 'focus', false);
+    className(this.controlElement, "focus", false);
     visible(this.dropdownElement, false);
 
     this.onClose();
@@ -109,68 +110,68 @@ export class TreeSelect {
     if (!this.settings.dataSrc) return this.onLoad(this.settings.data || []);
 
     return fetch(this.settings.dataSrc)
-      .then(response => response.json())
+      .then((response) => response.json())
       .then(this.onLoad);
   }
 
   public destroy(): void {
-    document.removeEventListener('mousedown', this.onFocus, true);
-    document.removeEventListener('focus', this.onFocus, true);
+    document.removeEventListener("mousedown", this.onFocus, true);
+    document.removeEventListener("focus", this.onFocus, true);
 
     if (this.wrapperElement) this.wrapperElement.remove();
 
     visible(this.rootElement, true);
 
     this.rootElement.treeSelect = null;
-    this.rootElement.removeEventListener('change', this.onChange);
+    this.rootElement.removeEventListener("change", this.onChange);
   }
 
   private initMount(): void {
     // create the wrapper element
-    this.wrapperElement = create('div', 'wrapper', this.settings.html);
-    this.wrapperElement.addEventListener('keydown', this.onKeyDown);
+    this.wrapperElement = create("div", "wrapper", this.settings.html);
+    this.wrapperElement.addEventListener("keydown", this.onKeyDown);
     this.rootElement.after(this.wrapperElement);
 
     // create the controlled element
-    this.controlElement = create('div', 'control', this.settings.html);
+    this.controlElement = create("div", "control", this.settings.html);
     this.controlElement.tabIndex = 0;
-    this.controlElement.innerHTML = `${this.selected.length} ${this.settings.text.selected}`;
-    this.controlElement.addEventListener('focus', this.onFocus);
+    this.controlElement.innerHTML = `${this.values.length} ${this.settings.text.selected}`;
+    this.controlElement.addEventListener("focus", this.onFocus);
     this.wrapperElement.appendChild(this.controlElement);
 
     // create the dropdown element
-    this.dropdownElement = create('div', 'dropdown', this.settings.html);
+    this.dropdownElement = create("div", "dropdown", this.settings.html);
     visible(this.dropdownElement, false);
     this.wrapperElement.appendChild(this.dropdownElement);
 
     // create the heading element
-    const headingContainer = create('div', 'heading', this.settings.html);
-    const headingElement = create('span', 'headingSpan', this.settings.html);
+    const headingContainer = create("div", "heading", this.settings.html);
+    const headingElement = create("span", "headingSpan", this.settings.html);
     if (this.settings.text.heading) headingElement.innerHTML = this.settings.text.heading;
     headingContainer.appendChild(headingElement);
 
     // create the clear element
-    const clearElement = create('span', 'clear', this.settings.html);
-    clearElement.addEventListener('click', this.onClear);
+    const clearElement = create("span", "clear", this.settings.html);
+    clearElement.addEventListener("click", this.onClear);
     headingContainer.appendChild(clearElement);
 
     this.dropdownElement.appendChild(headingContainer);
 
     // create the search element
-    const searchElement = create('input', 'search', this.settings.html);
-    searchElement.type = 'search';
+    const searchElement = create("input", "search", this.settings.html);
+    searchElement.type = "search";
     if (this.settings.text.search) searchElement.placeholder = this.settings.text.search;
-    searchElement.addEventListener('keyup', debounce(this.onSearch, 100));
-    searchElement.addEventListener('search', debounce(this.onSearch, 100));
+    searchElement.addEventListener("keyup", debounce(this.onSearch, 100));
+    searchElement.addEventListener("search", debounce(this.onSearch, 100));
     this.dropdownElement.appendChild(searchElement);
 
     // create the loading element
-    this.loadingElement = create('div', 'loading', this.settings.html);
+    this.loadingElement = create("div", "loading", this.settings.html);
     this.dropdownElement.appendChild(this.loadingElement);
 
     // add event listeners
-    document.addEventListener('mousedown', this.onFocus, true);
-    document.addEventListener('focus', this.onFocus, true);
+    document.addEventListener("mousedown", this.onFocus, true);
+    document.addEventListener("focus", this.onFocus, true);
 
     // hide the initial input element
     visible(this.rootElement, false);
@@ -178,21 +179,21 @@ export class TreeSelect {
 
   private mountItems(): void {
     // create the list element
-    const listElement = create('div', 'list', this.settings.html);
+    const listElement = create("div", "list", this.settings.html);
 
     // create the items
     this.items = new Map<string, TreeItem>();
     createItems(this.items, this.data, this.mountItem, listElement);
 
     // set the depth of the tree
-    this.depth = Math.max(...Array.from(this.items.values()).map(item => item.depth));
+    this.depth = Math.max(...Array.from(this.items.values()).map((item) => item.depth));
     this.depthValues =
-      this.settings.depthValues === 'last' ? this.depth : this.settings.depthValues;
+      this.settings.depthValues === "last" ? this.depth : this.settings.depthValues;
 
     // populate the items
     populateItems(
       this.items,
-      item => this.selected.includes(item.id) && item.depth >= this.depthValues
+      (item) => this.values.includes(item.id) && item.depth >= this.depthValues,
     );
 
     this.render();
@@ -208,36 +209,36 @@ export class TreeSelect {
     item.collapsed = item.depth >= this.settings.depthCollapsed;
 
     // create root item element
-    item.itemElement = create('div', 'item', this.settings.html);
+    item.itemElement = create("div", "item", this.settings.html);
 
     // create label with collapse element, checkbox and name
-    const labelElement = create('div', 'label', this.settings.html);
+    const labelElement = create("div", "label", this.settings.html);
 
     // create collapse element
     if (item.children && item.depth >= this.settings.depthCollapsable) {
-      item.collapseElement = create('div', 'collapse', this.settings.html);
+      item.collapseElement = create("div", "collapse", this.settings.html);
       labelElement.appendChild(item.collapseElement);
     }
 
     // create checkbox element
     if (item.depth >= this.settings.depthCheckboxes) {
-      item.checkboxElement = create('input', 'checkbox', this.settings.html);
-      item.checkboxElement.type = 'checkbox';
-      item.checkboxElement.addEventListener('click', event => this.onItemSelect(event, item));
+      item.checkboxElement = create("input", "checkbox", this.settings.html);
+      item.checkboxElement.type = "checkbox";
+      item.checkboxElement.addEventListener("click", (event) => this.onItemSelect(event, item));
       labelElement.appendChild(item.checkboxElement);
     }
 
-    const labelSpan = create('span', 'labelSpan', this.settings.html);
+    const labelSpan = create("span", "labelSpan", this.settings.html);
     labelSpan.innerHTML = item.name;
     labelElement.appendChild(labelSpan);
-    labelElement.addEventListener('click', event =>
-      item.children ? this.onItemCollapse(event, item) : this.onItemSelect(event, item)
+    labelElement.addEventListener("click", (event) =>
+      item.children ? this.onItemCollapse(event, item) : this.onItemSelect(event, item),
     );
 
     // append label and children element to root item element
     item.itemElement.appendChild(labelElement);
     if (item.children) {
-      item.childrenElement = create('div', 'children', this.settings.html);
+      item.childrenElement = create("div", "children", this.settings.html);
       item.itemElement.appendChild(item.childrenElement);
     }
 
@@ -246,17 +247,19 @@ export class TreeSelect {
   }
 
   private render(): void {
-    this.items.forEach(this.renderItem);
+    for (const item of this.items.values()) {
+      this.renderItem(item);
+    }
 
     if (this.controlElement)
-      this.controlElement.innerHTML = `${this.selected.length} ${this.settings.text.selected}`;
+      this.controlElement.innerHTML = `${this.values.length} ${this.settings.text.selected}`;
   }
 
   private renderItem(item: TreeItem): void {
     visible(item.childrenElement, !item.collapsed || item.depth < this.settings.depthCollapsable);
     visible(item.itemElement, !item.hidden);
 
-    className(item.collapseElement, 'collapsed', item.collapsed);
+    className(item.collapseElement, "collapsed", item.collapsed);
 
     if (!item.checkboxElement) return;
 
@@ -279,7 +282,7 @@ export class TreeSelect {
 
     if (event.shiftKey && this.lastSelectedItem) {
       // get all items at same depth
-      const itemsAtDepth = Array.from(this.items.values()).filter(i => i.depth === item.depth);
+      const itemsAtDepth = Array.from(this.items.values()).filter((i) => i.depth === item.depth);
 
       // find indices of current and last selected items
       const currentIndex = itemsAtDepth.indexOf(item);
@@ -291,22 +294,24 @@ export class TreeSelect {
       const itemsToUpdate = itemsAtDepth.slice(start, end + 1);
 
       // update all items in range
-      itemsToUpdate.forEach(item => selectItem(this.items, item));
+      for (const item of itemsToUpdate) {
+        selectItem(this.items, item);
+      }
     } else {
       selectItem(this.items, item);
 
       this.lastSelectedItem = item;
     }
 
-    this.selected = Array.from(this.items.values())
-      .filter(item => item.checked && item.depth >= this.depthValues)
-      .map(item => item.id);
+    this.values = Array.from(this.items.values())
+      .filter((item) => item.checked && item.depth >= this.depthValues)
+      .map((item) => item.id);
 
-    setInputValues(this.rootElement, this.selected, this.settings.delimiter);
+    setInputValues(this.rootElement, this.values, this.settings.delimiter);
 
     this.render();
 
-    if (this.settings.onSelect) this.settings.onSelect(this.selected);
+    if (this.settings.onSelect) this.settings.onSelect(this.values);
   }
 
   private onItemCollapse(_event: Event, item: TreeItem): void {
@@ -325,14 +330,17 @@ export class TreeSelect {
       updateItems(this.items, { hidden: false, collapsed: true });
     } else {
       updateItems(this.items, { hidden: true, collapsed: true });
-      updateItems(this.items, item => {
+      updateItems(this.items, (item) => {
         const match = item.fullName.toLowerCase().includes(this.search.toLowerCase());
         if (!match) return;
 
         item.hidden = false;
 
         updateItemDescendants(this.items, item, { hidden: false });
-        updateItemAscendants(this.items, item, { hidden: false, collapsed: false });
+        updateItemAscendants(this.items, item, {
+          hidden: false,
+          collapsed: false,
+        });
       });
     }
 
@@ -342,14 +350,14 @@ export class TreeSelect {
   }
 
   private onKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') this.close();
+    if (event.key === "Escape") this.close();
   }
 
   private onClear(): void {
-    this.selected = [];
+    this.values = [];
 
     updateItems(this.items, { checked: false, indeterminate: false });
-    setInputValues(this.rootElement, this.selected, this.settings.delimiter);
+    setInputValues(this.rootElement, this.values, this.settings.delimiter);
 
     this.render();
 
@@ -373,16 +381,16 @@ export class TreeSelect {
   }
 
   private onChange(_event: Event): void {
-    this.selected = getInputValues(this.rootElement, this.settings.delimiter);
+    this.values = getInputValues(this.rootElement, this.settings.delimiter);
     if (!this.mounted) return;
 
     populateItems(
       this.items,
-      item => this.selected.includes(item.id) && item.depth >= this.depthValues
+      (item) => this.values.includes(item.id) && item.depth >= this.depthValues,
     );
 
     this.render();
   }
 }
 
-export { TreeItem, TreeSettings, Data };
+export type { TreeItem, TreeSettings, Data };

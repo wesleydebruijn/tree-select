@@ -1,6 +1,17 @@
 # Tree Select
 
-A lightweight, vanilla JavaScript tree select component that transforms HTML inputs and selects into hierarchical dropdowns, with no styling dependencies. Features include search, multi-select, collapsible nodes, and both static and dynamic data loading. Fully customizable through CSS classes.
+A lightweight, vanilla JavaScript tree select component that transforms HTML inputs and selects into hierarchical trees.
+
+## Features
+
+- Hierarchical tree of checkboxes
+- Async data fetching
+- Customizable depth for collapsing, checkboxes and values
+- Parent/child selection propagation
+- Supports both input and select HTML elements
+- Built in functionalities like search, shift+select, clear all
+- Tailwind support by injectable classNames
+- TypeScript support
 
 ## Installation
 
@@ -14,9 +25,7 @@ npm install tree-select
 
 ```html
 <input type="text" id="tree-select" value="1,2" />
-
 <!-- or -->
-
 <select id="tree-select" multiple>
   <option value="1" selected>1</option>
   <option value="2" selected>2</option>
@@ -128,16 +137,6 @@ interface Data {
   children?: Data[];
 }
 ```
-
-## Features
-
-- Hierarchical checkbox tree structure
-- Search/filter functionality
-- Customizable depth for collapsing, checkboxes and values
-- Parent/child selection propagation
-- Supports both input and select elements
-- Fully customizable styling & data attribution
-- TypeScript support
 
 ## Settings
 
