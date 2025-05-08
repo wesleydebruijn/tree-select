@@ -22,6 +22,23 @@ export interface TreeItem {
   childrenElement: HTMLElement | null;
 }
 
+export type TreeHTMLElement =
+  | 'wrapper'
+  | 'control'
+  | 'search'
+  | 'dropdown'
+  | 'heading'
+  | 'headingSpan'
+  | 'loading'
+  | 'list'
+  | 'item'
+  | 'checkbox'
+  | 'collapse'
+  | 'clear'
+  | 'label'
+  | 'labelSpan'
+  | 'children';
+
 export interface TreeSettings {
   open: boolean;
   delimiter: string;
@@ -34,19 +51,9 @@ export interface TreeSettings {
   clearText: string;
   data?: Data[];
   dataSrc?: string;
-
-  wrapperClassName?: string;
-  controlClassName?: string;
-  searchClassName?: string;
-  dropdownClassName?: string;
-  headingClassName?: string;
-  loadingClassName?: string;
-  listClassName?: string;
-  itemClassName?: string;
-  checkboxClassName?: string;
-  collapseClassName?: string;
-  clearClassName?: string;
-  labelClassName?: string;
+  html: {
+    [key in TreeHTMLElement]?: { className?: string; data?: object };
+  };
 
   onOpen?: () => void;
   onClose?: () => void;

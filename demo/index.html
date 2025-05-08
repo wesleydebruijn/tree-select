@@ -15,21 +15,6 @@
             margin-bottom: 2rem;
         }
 
-        .input, .select {
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            padding: 5px 10px;
-            width: 200px;
-        }
-
-        .select {
-            background-image: url("data:image/svg+xml,%3Csvg fill='none' height='24' stroke='rgb(88 117 140)' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.75rem center;
-            background-size: 1.25rem 1.25rem;
-            appearance: none;
-        }
-
         .tree-select-wrapper {
             position: relative;
         }
@@ -80,28 +65,28 @@
             -ms-overflow-style: none;
         }
 
-        .tree-select-item-label {
+        .tree-select-label {
             display: flex;
             align-items: center;
             gap: 2px;
         }
 
-        .tree-select-item-children {
+        .tree-select-children {
             margin-left: 18px;
         }
 
-        .tree-select-item-label {
+        .tree-select-label {
             cursor: pointer;
         }
 
-        .tree-select-item-collapse {
+        .tree-select-collapse {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 13.1l-8-8 2.1-2.2 5.9 5.9 5.9-5.9 2.1 2.2z'/%3E%3C/svg%3E");
             height: 10px;
             width: 10px;
             transition: transform 0.1s ease-in-out;
         }
-
-        .tree-select-item-collapse--collapsed {
+ 
+        .tree-select-collapse.collapsed {
             transform: rotate(-90deg);
         }
 
@@ -109,15 +94,15 @@
 </head>
 <body>
     <h1>Tree Select Demo</h1>
-
+ 
     <section>
         <h2>Input</h2>
-        <input type="text" class="input" id="input" value="3,4" />
+        <input type="text" id="input" value="3,4" />
     </section>
 
     <section>
         <h2>Select</h2>
-        <select type="text" class="select" id="multi-select" multiple>
+        <select type="text" id="multi-select" multiple>
             <option value="3" selected>3</option>
             <option value="4" selected>4</option>
         </select>

@@ -1,4 +1,4 @@
-import { debounce, className, create, visible } from './utils/global';
+import { debounce, className, create, visible } from './utils/dom';
 import { getInputElement, getInputValues, setInputValues } from './utils/input';
 import {
   createItems,
@@ -17,31 +17,16 @@ declare global {
   }
 }
 
-const cls = {
-  wrapper: 'tree-select-wrapper',
-  control: 'tree-select-control',
-  search: 'tree-select-search',
-  heading: 'tree-select-heading',
-  dropdown: 'tree-select-dropdown',
-  list: 'tree-select-list',
-  item: 'tree-select-item',
-  loading: 'tree-select-loading',
-  itemChildren: 'tree-select-item-children',
-  itemCheckbox: 'tree-select-item-checkbox',
-  itemCollapse: 'tree-select-item-collapse',
-  itemLabel: 'tree-select-item-label',
-  clear: 'tree-select-clear',
-};
-
 export class TreeSelect {
   public settings: TreeSettings = {
-    open: true,
+    open: false,
     delimiter: ',',
     loadingText: 'Loading...',
     selectedText: 'selected',
     clearText: 'clear',
     collapseDepth: 0,
     checkboxDepth: 0,
+    html: {},
   };
 
   public opened: boolean = false;
@@ -98,7 +83,7 @@ export class TreeSelect {
     if (!this.loaded && !this.loading) debounce(() => this.load(), 0)();
 
     this.opened = true;
-    className(this.controlElement, `${cls.control}--focus`, true);
+    className(this.controlElement, 'focus', true);
     visible(this.dropdownElement, true);
 
     this.onOpen();
@@ -108,7 +93,7 @@ export class TreeSelect {
     if (!this.opened) return;
 
     this.opened = false;
-    className(this.controlElement, `${cls.control}--focus`, false);
+    className(this.controlElement, 'focus', false);
     visible(this.dropdownElement, false);
 
     this.onClose();
@@ -136,43 +121,37 @@ export class TreeSelect {
 
   private initMount(): void {
     // create the wrapper element
-    this.wrapperElement = create('div', [cls.wrapper, this.settings.wrapperClassName]);
+    this.wrapperElement = create('div', 'wrapper', this.settings.html);
     this.wrapperElement.addEventListener('keydown', this.onKeyDown);
     this.rootElement.after(this.wrapperElement);
 
     // create the controlled element
-    this.controlElement = create(
-      'div',
-      [cls.control, this.settings.controlClassName || this.rootElement.className],
-      `${this.selected.length} ${this.settings.selectedText}`
-    );
+    this.controlElement = create('div', 'control', this.settings.html);
     this.controlElement.tabIndex = 0;
+    this.controlElement.innerHTML = `${this.selected.length} ${this.settings.selectedText}`;
     this.controlElement.addEventListener('focus', this.onFocus);
     this.wrapperElement.appendChild(this.controlElement);
 
     // create the dropdown element
-    this.dropdownElement = create('div', [cls.dropdown, this.settings.dropdownClassName]);
+    this.dropdownElement = create('div', 'dropdown', this.settings.html);
     visible(this.dropdownElement, false);
     this.wrapperElement.appendChild(this.dropdownElement);
 
     // create the heading element
-    const headingContainer = create('div', [cls.heading, this.settings.headingClassName]);
-    const headingElement = create('span', [], this.settings.headingText);
+    const headingContainer = create('div', 'heading', this.settings.html);
+    const headingElement = create('span', 'headingSpan', this.settings.html);
+    if (this.settings.headingText) headingElement.innerHTML = this.settings.headingText;
     headingContainer.appendChild(headingElement);
 
     // create the clear element
-    const clearElement = create(
-      'span',
-      [cls.clear, this.settings.clearClassName],
-      this.settings.clearText
-    );
+    const clearElement = create('span', 'clear', this.settings.html);
     clearElement.addEventListener('click', this.onClear);
     headingContainer.appendChild(clearElement);
 
     this.dropdownElement.appendChild(headingContainer);
 
     // create the search element
-    const searchElement = create('input', [cls.search, this.settings.searchClassName]);
+    const searchElement = create('input', 'search', this.settings.html);
     searchElement.type = 'search';
     if (this.settings.searchText) searchElement.placeholder = this.settings.searchText;
     searchElement.addEventListener('keyup', debounce(this.onSearch, 100));
@@ -180,11 +159,7 @@ export class TreeSelect {
     this.dropdownElement.appendChild(searchElement);
 
     // create the loading element
-    this.loadingElement = create(
-      'div',
-      [cls.loading, this.settings.loadingClassName],
-      this.settings.loadingText
-    );
+    this.loadingElement = create('div', 'loading', this.settings.html);
     this.dropdownElement.appendChild(this.loadingElement);
 
     // add event listeners
@@ -197,7 +172,7 @@ export class TreeSelect {
 
   private mountItems(): void {
     // create the list element
-    const listElement = create('div', [cls.list, this.settings.listClassName]);
+    const listElement = create('div', 'list', this.settings.html);
 
     // create the items
     this.items = new Map<string, TreeItem>();
@@ -222,26 +197,28 @@ export class TreeSelect {
     item.collapsed = item.depth >= this.settings.collapseDepth;
 
     // create root item element
-    item.itemElement = create('div', [cls.item, this.settings.itemClassName]);
+    item.itemElement = create('div', 'item', this.settings.html);
 
     // create label with collapse element, checkbox and name
-    const labelElement = create('div', [cls.itemLabel, this.settings.labelClassName]);
+    const labelElement = create('div', 'label', this.settings.html);
 
     // create collapse element
     if (item.children) {
-      item.collapseElement = create('div', [cls.itemCollapse, this.settings.collapseClassName]);
+      item.collapseElement = create('div', 'collapse', this.settings.html);
       labelElement.appendChild(item.collapseElement);
     }
 
     // create checkbox element
     if (item.depth >= this.settings.checkboxDepth) {
-      item.checkboxElement = create('input', [cls.itemCheckbox, this.settings.checkboxClassName]);
+      item.checkboxElement = create('input', 'checkbox', this.settings.html);
       item.checkboxElement.type = 'checkbox';
       item.checkboxElement.addEventListener('click', event => this.onItemSelect(event, item));
       labelElement.appendChild(item.checkboxElement);
     }
 
-    labelElement.appendChild(create('span', [], item.name));
+    const labelSpan = create('span', 'labelSpan', this.settings.html);
+    labelSpan.innerHTML = item.name;
+    labelElement.appendChild(labelSpan);
     labelElement.addEventListener('click', event =>
       item.children ? this.onItemCollapse(event, item) : this.onItemSelect(event, item)
     );
@@ -249,7 +226,7 @@ export class TreeSelect {
     // append label and children element to root item element
     item.itemElement.appendChild(labelElement);
     if (item.children) {
-      item.childrenElement = create('div', [cls.itemChildren]);
+      item.childrenElement = create('div', 'children', this.settings.html);
       item.itemElement.appendChild(item.childrenElement);
     }
 
@@ -268,7 +245,7 @@ export class TreeSelect {
     visible(item.childrenElement, !item.collapsed);
     visible(item.itemElement, !item.hidden);
 
-    className(item.collapseElement, `${cls.itemCollapse}--collapsed`, item.collapsed);
+    className(item.collapseElement, 'collapsed', item.collapsed);
 
     if (!item.checkboxElement) return;
 
