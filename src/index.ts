@@ -1,23 +1,16 @@
-import { defaults, classNames } from './constants';
-import {
-  createDiv,
-  createInput,
-  createLabel,
-  createSpan,
-  createCheckbox,
-  visible,
-} from './utils/dom';
-import { debounce } from './utils/global';
+import { defaults, classNames as cls } from './constants';
+import { debounce, create, visible } from './utils/global';
 import { getInputElement, getInputValues, setInputValues } from './utils/input';
 import {
+  createItems,
   updateItems,
-  updateItemChildren,
-  updateItemAncestors,
+  updateItemDescendants,
+  updateItemAscendants,
   propagateItem,
   populateItems,
 } from './utils/items';
 
-import type { TreeItem, TreeRecord, TreeSettings } from './types';
+import type { TreeItem, TreeSettings, Data } from './types';
 
 declare global {
   interface HTMLElement {
@@ -31,13 +24,14 @@ export class TreeSelect {
   public opened: boolean = false;
   public loaded: boolean = false;
   public loading: boolean = false;
+  public mounted: boolean = false;
   public search: string = '';
 
-  public data: TreeRecord[] = [];
+  public data: Data[] = [];
   public selected: string[] = [];
 
   public items: Map<string, TreeItem> = new Map();
-  public itemLevels: number = 0;
+  public depth: number = 0;
 
   public inputElement: HTMLInputElement | HTMLSelectElement;
   public wrapperElement: HTMLElement | null = null;
@@ -54,50 +48,23 @@ export class TreeSelect {
     this.onFocus = this.onFocus.bind(this);
     this.onSearch = this.onSearch.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
+    this.mountItem = this.mountItem.bind(this);
 
     // initialize the root input element
     this.inputElement = getInputElement(input);
 
-    if (this.inputElement.treeSelect) {
+    if (this.inputElement.treeSelect)
       throw new Error('TreeSelect already initialized on this element');
-    }
 
     this.inputElement.treeSelect = this;
     this.inputElement.addEventListener('change', this.onChange);
 
     this.data = this.settings.data || [];
+    this.selected = getInputValues(this.inputElement, this.settings.delimiter);
 
     this.mount();
 
     if (this.settings.open) this.open();
-  }
-
-  public mount(): void {
-    // create the wrapper element
-    this.wrapperElement = createDiv(classNames.wrapper, this.settings.wrapperClassName);
-    this.wrapperElement.addEventListener('keydown', this.onKeyDown);
-    this.inputElement.after(this.wrapperElement);
-
-    // create the search element
-    this.searchElement = createInput(
-      classNames.search,
-      this.settings.searchClassName || this.inputElement.className
-    );
-    this.searchElement.placeholder = this.settings.placeholder;
-    this.searchElement.addEventListener('keyup', debounce(this.onSearch, 100));
-    this.wrapperElement.appendChild(this.searchElement);
-
-    // create the dropdown element
-    this.dropdownElement = createDiv(classNames.dropdown, this.settings.dropdownClassName);
-    visible(this.dropdownElement, false);
-    this.wrapperElement.appendChild(this.dropdownElement);
-
-    // add event listeners
-    document.addEventListener('mousedown', this.onFocus, true);
-    document.addEventListener('focus', this.onFocus, true);
-
-    // hide the initial input element
-    visible(this.inputElement, false);
   }
 
   public open(): void {
@@ -124,7 +91,7 @@ export class TreeSelect {
 
     return fetch(this.settings.src)
       .then(response => response.json())
-      .then((data: TreeRecord[]) => {
+      .then((data: Data[]) => {
         this.data = data;
         this.onLoad();
       });
@@ -142,67 +109,83 @@ export class TreeSelect {
     this.inputElement.removeEventListener('change', this.onChange);
   }
 
-  private createItems(
-    data: TreeRecord[],
-    level: number = 0,
-    parentElement?: HTMLElement | null,
-    parent?: string
-  ): void {
-    if (level > this.itemLevels) this.itemLevels = level;
+  private mount(): void {
+    // create the wrapper element
+    this.wrapperElement = create('div', [cls.wrapper, this.settings.wrapperClassName]);
+    this.wrapperElement.addEventListener('keydown', this.onKeyDown);
+    this.inputElement.after(this.wrapperElement);
 
-    data.forEach(record => {
-      let item: TreeItem = {
-        _id: `${level}-${record.id}`,
-        parent,
-        children: record.children?.map(child => `${level + 1}-${child.id}`),
-        level,
-        id: `${record.id}`,
-        name: record.name,
-        checked: false,
-        indeterminate: false,
-        collapsed: true,
-        hidden: false,
-        itemElement: null,
-        checkboxElement: null,
-        collapseElement: null,
-        childrenElement: null,
-      };
+    // create the search element
+    this.searchElement = create('input', [cls.search, this.settings.searchClassName]);
+    this.searchElement.placeholder = this.settings.placeholder;
+    this.searchElement.addEventListener('keyup', debounce(this.onSearch, 100));
+    this.wrapperElement.appendChild(this.searchElement);
 
-      const itemElement = createDiv(classNames.item, this.settings.itemClassName);
-      const labelElement = createLabel(classNames.itemLabel);
-      itemElement.appendChild(labelElement);
+    // create the dropdown element
+    this.dropdownElement = create('div', [cls.dropdown, this.settings.dropdownClassName]);
+    visible(this.dropdownElement, false);
+    this.wrapperElement.appendChild(this.dropdownElement);
 
-      const checkboxElement = createCheckbox(
-        classNames.itemCheckbox,
-        this.settings.checkboxClassName
-      );
-      checkboxElement.addEventListener('click', event => this.onItemSelect(event, item));
+    // add event listeners
+    document.addEventListener('mousedown', this.onFocus, true);
+    document.addEventListener('focus', this.onFocus, true);
 
-      let collapseElement: HTMLElement | null = null;
-      let childrenElement: HTMLElement | null = null;
-      if (record.children) {
-        collapseElement = createDiv(classNames.itemCollapse, this.settings.collapseClassName);
-        collapseElement.addEventListener('click', event => this.onItemCollapse(event, item));
-        labelElement.appendChild(collapseElement);
+    // hide the initial input element
+    visible(this.inputElement, false);
+  }
 
-        childrenElement = createDiv(classNames.itemChildren);
-        itemElement.appendChild(childrenElement);
+  private mountItems(): void {
+    // create the list element
+    this.listElement = create('div', [cls.list, this.settings.listClassName]);
 
-        this.createItems(record.children, level + 1, childrenElement, item._id);
-      }
+    // create the items
+    this.items = new Map<string, TreeItem>();
+    createItems(this.items, this.data, this.mountItem, this.listElement);
 
-      labelElement.appendChild(checkboxElement);
-      labelElement.appendChild(createSpan(record.name));
+    // set the depth of the tree
+    this.depth = Math.max(...Array.from(this.items.values()).map(item => item.depth));
 
-      if (parentElement) parentElement.appendChild(itemElement);
+    // populate the items
+    populateItems(this.items, item => this.selected.includes(item.id) && item.depth === this.depth);
 
-      item.itemElement = itemElement;
-      item.checkboxElement = checkboxElement;
-      item.collapseElement = collapseElement;
-      item.childrenElement = childrenElement;
+    this.updateDOM();
 
-      this.items.set(item._id, item);
-    });
+    // append the list element to the dropdown element
+    if (this.dropdownElement) this.dropdownElement.appendChild(this.listElement);
+
+    this.mounted = true;
+  }
+
+  private mountItem(item: TreeItem, element: HTMLElement) {
+    // create root item element
+    item.itemElement = create('div', [cls.item, this.settings.itemClassName]);
+
+    // create checkbox element
+    item.checkboxElement = create('input', [cls.itemCheckbox, this.settings.checkboxClassName]);
+    item.checkboxElement.type = 'checkbox';
+    item.checkboxElement.addEventListener('click', event => this.onItemSelect(event, item));
+
+    // create collapse element
+    if (item.children) {
+      item.collapseElement = create('div', [cls.itemCollapse, this.settings.collapseClassName]);
+      item.collapseElement.addEventListener('click', event => this.onItemCollapse(event, item));
+    }
+
+    // create label with collapse element, checkbox and name
+    const labelElement = create('label', [cls.itemLabel]);
+    if (item.collapseElement) labelElement.appendChild(item.collapseElement);
+    labelElement.appendChild(item.checkboxElement);
+    labelElement.appendChild(create('span', [], item.name));
+
+    // append label and children element to root item element
+    item.itemElement.appendChild(labelElement);
+    if (item.children) {
+      item.childrenElement = create('div', [cls.itemChildren]);
+      item.itemElement.appendChild(item.childrenElement);
+    }
+
+    // append item element to the parent element
+    element.appendChild(item.itemElement);
   }
 
   private updateDOM(): void {
@@ -210,10 +193,7 @@ export class TreeSelect {
       visible(item.childrenElement, !item.collapsed);
       visible(item.itemElement, !item.hidden);
 
-      if (item.collapseElement)
-        item.collapseElement.innerHTML = item.collapsed
-          ? this.settings.collapsedContent
-          : this.settings.expandedContent;
+      if (item.collapseElement) item.collapseElement.innerHTML = item.collapsed ? '▶' : '▼';
 
       if (item.checkboxElement) {
         item.checkboxElement.checked = item.checked;
@@ -227,18 +207,8 @@ export class TreeSelect {
   private onLoad(): void {
     this.loaded = true;
     this.loading = false;
-    this.selected = getInputValues(this.inputElement, this.settings.delimiter);
 
-    this.listElement = createDiv(classNames.list, this.settings.listClassName);
-    this.createItems(this.data, 0, this.listElement);
-    populateItems(
-      this.items,
-      item => this.selected.includes(item.id) && item.level === this.itemLevels
-    );
-
-    this.updateDOM();
-
-    if (this.dropdownElement) this.dropdownElement.appendChild(this.listElement);
+    if (!this.mounted) this.mountItems();
 
     if (this.settings.onLoad) this.settings.onLoad(this.data);
   }
@@ -247,11 +217,11 @@ export class TreeSelect {
     item.checked = !item.checked;
     item.indeterminate = false;
 
-    updateItemChildren(this.items, item, { checked: item.checked, indeterminate: false });
-    updateItemAncestors(this.items, item, item => propagateItem(this.items, item));
+    updateItemDescendants(this.items, item, { checked: item.checked, indeterminate: false });
+    updateItemAscendants(this.items, item, item => propagateItem(this.items, item));
 
     this.selected = Array.from(this.items.values())
-      .filter(item => item.checked && item.level === this.itemLevels)
+      .filter(item => item.checked && item.depth === this.depth)
       .map(item => item.id);
 
     setInputValues(this.inputElement, this.selected, this.settings.delimiter);
@@ -285,8 +255,8 @@ export class TreeSelect {
 
         item.hidden = false;
 
-        updateItemChildren(this.items, item, { hidden: false });
-        updateItemAncestors(this.items, item, { hidden: false });
+        updateItemDescendants(this.items, item, { hidden: false });
+        updateItemAscendants(this.items, item, { hidden: false });
       });
     }
 
@@ -315,21 +285,14 @@ export class TreeSelect {
     }
   }
 
-  private onChange(event: Event): void {
-    if (!this.loaded) return;
+  private onChange(_event: Event): void {
+    this.selected = getInputValues(this.inputElement, this.settings.delimiter);
+    if (!this.mounted) return;
 
-    this.selected = getInputValues(
-      event.target as HTMLInputElement | HTMLSelectElement,
-      this.settings.delimiter
-    );
-
-    populateItems(
-      this.items,
-      item => this.selected.includes(item.id) && item.level === this.itemLevels
-    );
+    populateItems(this.items, item => this.selected.includes(item.id) && item.depth === this.depth);
 
     this.updateDOM();
   }
 }
 
-export { TreeItem, TreeRecord, TreeSettings };
+export { TreeItem, TreeSettings, Data };

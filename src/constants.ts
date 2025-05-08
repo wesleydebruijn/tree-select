@@ -16,7 +16,5 @@ export const defaults: TreeSettings = {
   open: false,
   multiple: false,
   placeholder: 'Search...',
-  collapsedContent: '▶',
-  expandedContent: '▼',
   delimiter: ',',
 };

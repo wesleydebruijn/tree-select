@@ -1,7 +1,7 @@
-export interface TreeRecord {
+export interface Data {
   id: string | number;
   name: string;
-  children?: TreeRecord[];
+  children?: Data[];
 }
 
 export interface TreeItem {
@@ -9,7 +9,7 @@ export interface TreeItem {
   id: string;
   parent?: string;
   children?: string[];
-  level: number;
+  depth: number;
   name: string;
   checked: boolean;
   indeterminate: boolean;
@@ -26,9 +26,7 @@ export interface TreeSettings {
   multiple: boolean;
   placeholder: string;
   delimiter: string;
-  collapsedContent: string;
-  expandedContent: string;
-  data?: TreeRecord[];
+  data?: Data[];
   src?: string;
 
   wrapperClassName?: string;
@@ -43,6 +41,5 @@ export interface TreeSettings {
   onClose?: () => void;
   onSelect?: (selected: string[]) => void;
   onSearch?: (search: string) => void;
-  onClear?: () => void;
-  onLoad?: (data: TreeRecord[]) => void;
+  onLoad?: (data: Data[]) => void;
 }

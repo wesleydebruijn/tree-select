@@ -1,7 +1,7 @@
-import { TreeSelect, TreeRecord } from '../src/index';
+import { TreeSelect, Data } from '../src/index';
 
 // Sample data for different tree examples
-const data: TreeRecord[] = [
+const data: Data[] = [
   {
     id: '1',
     name: 'Apple',
@@ -441,6 +441,19 @@ const data: TreeRecord[] = [
       },
     ],
   },
+  ...Array.from({ length: 10 }, (_, i) => ({
+    id: `gen-${i + 1000}`,
+    name: `Brand ${i + 1}`,
+    children: Array.from({ length: 500 }, (_, j) => ({
+      id: `gen-${i + 2000}-${j + 1}`,
+      name: `${i + 1} Series ${String.fromCharCode(65 + (j % 26))}`,
+      children: [
+        { id: `gen-${i + 3000}-${j}-1`, name: `Model ${String.fromCharCode(65 + (j % 26))}1` },
+        { id: `gen-${i + 3000}-${j}-2`, name: `Model ${String.fromCharCode(65 + (j % 26))}2` },
+        { id: `gen-${i + 3000}-${j}-3`, name: `Model ${String.fromCharCode(65 + (j % 26))}3` },
+      ],
+    })),
+  })),
 ];
 
 new TreeSelect('#input', { data });

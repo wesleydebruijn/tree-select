@@ -1,4 +1,39 @@
-import type { TreeItem } from '../types';
+import type { TreeItem, Data } from '../types';
+
+export function createItems(
+  items: Map<string, TreeItem>,
+  data: Data[],
+  mount: (item: TreeItem, element: HTMLElement) => void,
+  element: HTMLElement,
+  depth: number = 0,
+  parent?: string
+): void {
+  data.forEach(record => {
+    let item: TreeItem = {
+      _id: `${depth}-${record.id}`,
+      parent,
+      children: record.children?.map(child => `${depth + 1}-${child.id}`),
+      depth,
+      id: `${record.id}`,
+      name: record.name,
+      checked: false,
+      indeterminate: false,
+      collapsed: true,
+      hidden: false,
+      itemElement: null,
+      checkboxElement: null,
+      collapseElement: null,
+      childrenElement: null,
+    };
+    mount(item, element);
+
+    if (record.children && item.childrenElement) {
+      createItems(items, record.children, mount, item.childrenElement, depth + 1, item._id);
+    }
+
+    items.set(item._id, item);
+  });
+}
 
 export function updateItems(
   items: Map<string, TreeItem>,
@@ -7,7 +42,7 @@ export function updateItems(
   items.forEach(item => Object.assign(item, fn instanceof Function ? fn(item) : fn));
 }
 
-export function updateItemChildren(
+export function updateItemDescendants(
   items: Map<string, TreeItem>,
   item: TreeItem,
   fn: ((item: TreeItem) => void) | Partial<TreeItem>
@@ -20,11 +55,11 @@ export function updateItemChildren(
 
     Object.assign(child, fn instanceof Function ? fn(child) : fn);
 
-    if (child.children) updateItemChildren(items, child, fn);
+    if (child.children) updateItemDescendants(items, child, fn);
   });
 }
 
-export function updateItemAncestors(
+export function updateItemAscendants(
   items: Map<string, TreeItem>,
   item: TreeItem,
   fn: ((item: TreeItem) => void) | Partial<TreeItem>
@@ -36,7 +71,7 @@ export function updateItemAncestors(
 
   Object.assign(parent, fn instanceof Function ? fn(parent) : fn);
 
-  updateItemAncestors(items, parent, fn);
+  updateItemAscendants(items, parent, fn);
 }
 
 export function propagateItem(items: Map<string, TreeItem>, item: TreeItem): void {
@@ -54,20 +89,20 @@ export function populateItems(
   items: Map<string, TreeItem>,
   isChecked: (item: TreeItem) => boolean
 ): void {
-  let ancestors = new Set<string>();
+  let parents = new Set<string>();
 
   updateItems(items, item => {
     const checked = isChecked(item);
 
-    if (checked && item.parent) ancestors.add(item.parent);
+    if (checked && item.parent) parents.add(item.parent);
 
     return { checked, indeterminate: false };
   });
 
-  ancestors.forEach(id => {
+  parents.forEach(id => {
     const item = items.get(id)!;
 
     propagateItem(items, item);
-    updateItemAncestors(items, item, item => propagateItem(items, item));
+    updateItemAscendants(items, item, item => propagateItem(items, item));
   });
 }

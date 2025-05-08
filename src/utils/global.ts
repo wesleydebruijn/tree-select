@@ -14,3 +14,21 @@ export function debounce<T extends (...args: any[]) => void>(
     }, wait);
   };
 }
+
+export function visible(element: HTMLElement | null, visible: boolean): void {
+  if (!element) return;
+
+  element.style.display = visible ? '' : 'none';
+}
+
+export function create<K extends keyof HTMLElementTagNameMap>(
+  tagName: K,
+  classNames?: (string | undefined)[],
+  innerHTML?: string
+): HTMLElementTagNameMap[K] {
+  const element = document.createElement(tagName);
+  classNames?.forEach(className => className && element.classList.add(className));
+  if (innerHTML) element.innerHTML = innerHTML;
+
+  return element;
+}
