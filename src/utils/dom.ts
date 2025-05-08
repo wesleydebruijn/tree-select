@@ -1,26 +1,26 @@
-import { TreeHTMLElement } from '../types';
+import type { TreeHTMLElement } from "../types";
 
 const classNames: Record<TreeHTMLElement, string> = {
-  wrapper: 'tree-select-wrapper',
-  control: 'tree-select-control',
-  search: 'tree-select-search',
-  dropdown: 'tree-select-dropdown',
-  heading: 'tree-select-heading',
-  headingSpan: 'tree-select-heading-span',
-  loading: 'tree-select-loading',
-  list: 'tree-select-list',
-  item: 'tree-select-item',
-  checkbox: 'tree-select-checkbox',
-  collapse: 'tree-select-collapse',
-  clear: 'tree-select-clear',
-  label: 'tree-select-label',
-  labelSpan: 'tree-select-label-span',
-  children: 'tree-select-children',
+  wrapper: "tree-select-wrapper",
+  control: "tree-select-control",
+  search: "tree-select-search",
+  dropdown: "tree-select-dropdown",
+  heading: "tree-select-heading",
+  headingSpan: "tree-select-heading-span",
+  loading: "tree-select-loading",
+  list: "tree-select-list",
+  item: "tree-select-item",
+  checkbox: "tree-select-checkbox",
+  collapse: "tree-select-collapse",
+  clear: "tree-select-clear",
+  label: "tree-select-label",
+  labelSpan: "tree-select-label-span",
+  children: "tree-select-children",
 };
 
-export function debounce<T extends (...args: any[]) => void>(
+export function debounce<T extends (...args: Parameters<T>) => void>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
   let timeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -48,13 +48,13 @@ export function className(element: HTMLElement | null, className: string, add: b
 export function visible(element: HTMLElement | null, visible: boolean): void {
   if (!element) return;
 
-  element.style.display = visible ? '' : 'none';
+  element.style.display = visible ? "" : "none";
 }
 
 export function create<K extends keyof HTMLElementTagNameMap>(
   tagName: K,
   key: TreeHTMLElement,
-  settings: { [key in TreeHTMLElement]?: { className?: string; data?: object } }
+  settings: { [key in TreeHTMLElement]?: { className?: string; data?: object } },
 ): HTMLElementTagNameMap[K] {
   const element = document.createElement(tagName);
   const { className, data } = settings[key] || {};
@@ -62,9 +62,9 @@ export function create<K extends keyof HTMLElementTagNameMap>(
   element.classList.add(classNames[key]);
   if (className) element.classList.add(className);
   if (data) {
-    Object.entries(data).forEach(([key, value]) => {
+    for (const [key, value] of Object.entries(data)) {
       element.dataset[key] = String(value);
-    });
+    }
   }
 
   return element;
