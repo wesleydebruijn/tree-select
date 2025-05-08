@@ -1,6 +1,6 @@
 # Tree Select
 
-A customizable tree select component for web applications.
+A lightweight, vanilla JavaScript tree select component that transforms HTML inputs and selects into hierarchical dropdowns, with no styling dependencies. Features include search, multi-select, collapsible nodes, and both static and dynamic data loading. Fully customizable through CSS classes.
 
 ## Installation
 
@@ -14,11 +14,9 @@ npm install tree-select
 
 ```html
 <input type="text" id="tree-select" value="1,2" />
-```
 
-or
+<!-- or -->
 
-```html
 <select id="tree-select" multiple>
   <option value="1" selected>1</option>
   <option value="2" selected>2</option>
@@ -66,7 +64,7 @@ const treeSelect = new TreeSelect('#tree-select', {
 
   // Data configuration
   data: [...], // Tree data
-  dataSrc: 'api/tree-data', // Or load from URL
+  dataSrc: 'api/tree-data.json', // Or load from URL
 
   // Depth settings
   depthCollapsable: 0, // Depth at which items become collapsible
@@ -133,7 +131,7 @@ interface Data {
 - Customizable depth for collapsing, checkboxes and values
 - Parent/child selection propagation
 - Supports both input and select elements
-- Fully customizable styling
+- Fully customizable styling & data attribution
 - TypeScript support
 
 ## Settings
