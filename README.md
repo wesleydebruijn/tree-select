@@ -27,7 +27,7 @@ npm install tree-select
 ```typescript
 import { TreeSelect } from 'tree-select';
 
-const treeSelect = new TreeSelect('#tree-select', {
+const settings = {
   data: [
     {
       id: '1',
@@ -52,7 +52,12 @@ const treeSelect = new TreeSelect('#tree-select', {
     clear: 'Clear',
     loading: 'Loading...',
   },
-});
+};
+
+const element = document.getElementByid('tree-select');
+const treeSelect = new TreeSelect(element, settings);
+// or
+const treeSelect = new TreeSelect('#tree-select', settings);
 ```
 
 ### Advanced Configuration
