@@ -35,8 +35,7 @@ const cls = {
 
 export class TreeSelect {
   public settings: TreeSettings = {
-    open: false,
-    placeholder: 'Search...',
+    open: true,
     delimiter: ',',
     loadingText: 'Loading...',
     selectedText: 'selected',
@@ -88,8 +87,8 @@ export class TreeSelect {
     // initialize the selected values
     this.selected = getInputValues(this.rootElement, this.settings.delimiter);
 
-    // mount initial HTML to the DOM, without fetching data
-    this.mount();
+    // mount initial HTML to the DOM, without fetching data or rendering tree
+    this.initMount();
 
     if (this.settings.open) this.open();
   }
@@ -135,7 +134,7 @@ export class TreeSelect {
     this.rootElement.removeEventListener('change', this.onChange);
   }
 
-  private mount(): void {
+  private initMount(): void {
     // create the wrapper element
     this.wrapperElement = create('div', [cls.wrapper, this.settings.wrapperClassName]);
     this.wrapperElement.addEventListener('keydown', this.onKeyDown);
@@ -175,7 +174,7 @@ export class TreeSelect {
     // create the search element
     const searchElement = create('input', [cls.search, this.settings.searchClassName]);
     searchElement.type = 'search';
-    searchElement.placeholder = this.settings.placeholder;
+    if (this.settings.searchText) searchElement.placeholder = this.settings.searchText;
     searchElement.addEventListener('keyup', debounce(this.onSearch, 100));
     searchElement.addEventListener('search', debounce(this.onSearch, 100));
     this.dropdownElement.appendChild(searchElement);

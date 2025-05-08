@@ -24,10 +24,10 @@ export interface TreeItem {
 
 export interface TreeSettings {
   open: boolean;
-  placeholder: string;
   delimiter: string;
   collapseDepth: number;
   checkboxDepth: number;
+  searchText?: string;
   headingText?: string;
   loadingText: string;
   selectedText: string;
