@@ -26,6 +26,7 @@ export interface TreeSettings {
   multiple: boolean;
   placeholder: string;
   delimiter: string;
+  loadingText: string;
   data?: Data[];
   src?: string;
 

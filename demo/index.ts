@@ -444,7 +444,7 @@ const data: Data[] = [
   ...Array.from({ length: 10 }, (_, i) => ({
     id: `gen-${i + 1000}`,
     name: `Brand ${i + 1}`,
-    children: Array.from({ length: 500 }, (_, j) => ({
+    children: Array.from({ length: 300 }, (_, j) => ({
       id: `gen-${i + 2000}-${j + 1}`,
       name: `${i + 1} Series ${String.fromCharCode(65 + (j % 26))}`,
       children: [

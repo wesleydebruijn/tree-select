@@ -37,6 +37,7 @@ export class TreeSelect {
   public wrapperElement: HTMLElement | null = null;
   public searchElement: HTMLInputElement | null = null;
   public dropdownElement: HTMLElement | null = null;
+  public loadingElement: HTMLElement | null = null;
   public listElement: HTMLElement | null = null;
 
   constructor(
@@ -69,7 +70,7 @@ export class TreeSelect {
 
   public open(): void {
     if (this.opened) return;
-    if (!this.loaded && !this.loading) this.load();
+    if (!this.loaded && !this.loading) debounce(() => this.load(), 0)();
 
     this.opened = true;
     visible(this.dropdownElement, true);
@@ -123,6 +124,10 @@ export class TreeSelect {
     visible(this.dropdownElement, false);
     this.wrapperElement.appendChild(this.dropdownElement);
 
+    // create the loading element
+    this.loadingElement = create('div', [cls.loading], this.settings.loadingText);
+    this.dropdownElement.appendChild(this.loadingElement);
+
     // add event listeners
     document.addEventListener('mousedown', this.onFocus, true);
     document.addEventListener('focus', this.onFocus, true);
@@ -148,6 +153,7 @@ export class TreeSelect {
     this.items.forEach(this.renderItem);
 
     // append the list element to the dropdown element
+    visible(this.loadingElement, false);
     if (this.dropdownElement) this.dropdownElement.appendChild(this.listElement);
 
     this.mounted = true;

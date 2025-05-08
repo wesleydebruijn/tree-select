@@ -6,6 +6,7 @@ export const classNames = {
   dropdown: 'tree-select-dropdown',
   list: 'tree-select-list',
   item: 'tree-select-item',
+  loading: 'tree-select-loading',
   itemChildren: 'tree-select-item-children',
   itemCheckbox: 'tree-select-item-checkbox',
   itemCollapse: 'tree-select-item-collapse',
@@ -17,4 +18,5 @@ export const defaults: TreeSettings = {
   multiple: false,
   placeholder: 'Search...',
   delimiter: ',',
+  loadingText: 'Loading...',
 };
