@@ -46,6 +46,7 @@ export interface TreeSettings {
   checkboxClassName?: string;
   collapseClassName?: string;
   clearClassName?: string;
+  labelClassName?: string;
 
   onOpen?: () => void;
   onClose?: () => void;

@@ -148,7 +148,7 @@ export class TreeSelect {
       `${this.selected.length} ${this.settings.selectedText}`
     );
     this.controlElement.tabIndex = 0;
-    this.controlElement.addEventListener('focus', () => this.open());
+    this.controlElement.addEventListener('focus', this.onFocus);
     this.wrapperElement.appendChild(this.controlElement);
 
     // create the dropdown element
@@ -225,22 +225,23 @@ export class TreeSelect {
     // create root item element
     item.itemElement = create('div', [cls.item, this.settings.itemClassName]);
 
+    // create label with collapse element, checkbox and name
+    const labelElement = create('div', [cls.itemLabel, this.settings.labelClassName]);
+
+    // create collapse element
+    if (item.children) {
+      item.collapseElement = create('div', [cls.itemCollapse, this.settings.collapseClassName]);
+      labelElement.appendChild(item.collapseElement);
+    }
+
     // create checkbox element
     if (item.depth >= this.settings.checkboxDepth) {
       item.checkboxElement = create('input', [cls.itemCheckbox, this.settings.checkboxClassName]);
       item.checkboxElement.type = 'checkbox';
       item.checkboxElement.addEventListener('click', event => this.onItemSelect(event, item));
+      labelElement.appendChild(item.checkboxElement);
     }
 
-    // create collapse element
-    if (item.children) {
-      item.collapseElement = create('div', [cls.itemCollapse, this.settings.collapseClassName]);
-    }
-
-    // create label with collapse element, checkbox and name
-    const labelElement = create('div', [cls.itemLabel]);
-    if (item.collapseElement) labelElement.appendChild(item.collapseElement);
-    if (item.checkboxElement) labelElement.appendChild(item.checkboxElement);
     labelElement.appendChild(create('span', [], item.name));
     labelElement.addEventListener('click', event =>
       item.children ? this.onItemCollapse(event, item) : this.onItemSelect(event, item)
@@ -327,7 +328,7 @@ export class TreeSelect {
     this.renderItem(item);
   }
 
-  private onSearch(event: InputEvent): void {
+  private onSearch(event: Event): void {
     const search = (event.target as HTMLInputElement).value;
     if (search === this.search) return;
 
