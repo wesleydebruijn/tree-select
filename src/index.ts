@@ -38,7 +38,6 @@ export class TreeSelect {
     open: false,
     placeholder: 'Search...',
     delimiter: ',',
-    headingText: 'Heading',
     loadingText: 'Loading...',
     selectedText: 'selected',
     clearText: 'clear',
