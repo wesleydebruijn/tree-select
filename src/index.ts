@@ -1,4 +1,4 @@
-import { debounce, create, visible } from './utils/global';
+import { debounce, className, create, visible } from './utils/global';
 import { getInputElement, getInputValues, setInputValues } from './utils/input';
 import {
   createItems,
@@ -19,6 +19,7 @@ declare global {
 
 const cls = {
   wrapper: 'tree-select-wrapper',
+  control: 'tree-select-control',
   search: 'tree-select-search',
   dropdown: 'tree-select-dropdown',
   list: 'tree-select-list',
@@ -37,6 +38,7 @@ export class TreeSelect {
     placeholder: 'Search...',
     delimiter: ',',
     loadingText: 'Loading...',
+    selectedText: 'selected',
   };
 
   public opened: boolean = false;
@@ -52,6 +54,7 @@ export class TreeSelect {
   public depth: number = 0;
 
   public rootElement: HTMLInputElement | HTMLSelectElement;
+  public controlElement: HTMLElement | null = null;
   public wrapperElement: HTMLElement | null = null;
   public searchElement: HTMLInputElement | null = null;
   public dropdownElement: HTMLElement | null = null;
@@ -91,6 +94,7 @@ export class TreeSelect {
     if (!this.loaded && !this.loading) debounce(() => this.load(), 0)();
 
     this.opened = true;
+    className(this.controlElement, `${cls.control}--focus`, true);
     visible(this.dropdownElement, true);
 
     this.onOpen();
@@ -100,6 +104,7 @@ export class TreeSelect {
     if (!this.opened) return;
 
     this.opened = false;
+    className(this.controlElement, `${cls.control}--focus`, false);
     visible(this.dropdownElement, false);
 
     this.onClose();
@@ -131,16 +136,27 @@ export class TreeSelect {
     this.wrapperElement.addEventListener('keydown', this.onKeyDown);
     this.rootElement.after(this.wrapperElement);
 
-    // create the search element
-    this.searchElement = create('input', [cls.search, this.settings.searchClassName]);
-    this.searchElement.placeholder = this.settings.placeholder;
-    this.searchElement.addEventListener('keyup', debounce(this.onSearch, 100));
-    this.wrapperElement.appendChild(this.searchElement);
+    this.controlElement = create(
+      'div',
+      [cls.control, this.settings.controlClassName || this.rootElement.className],
+      `${this.selected.length} ${this.settings.selectedText}`
+    );
+    this.controlElement.tabIndex = 0;
+    this.controlElement.addEventListener('focus', () => this.open());
+    this.wrapperElement.appendChild(this.controlElement);
 
     // create the dropdown element
     this.dropdownElement = create('div', [cls.dropdown, this.settings.dropdownClassName]);
     visible(this.dropdownElement, false);
     this.wrapperElement.appendChild(this.dropdownElement);
+
+    // create the search element
+    this.searchElement = create('input', [cls.search, this.settings.searchClassName]);
+    this.searchElement.type = 'search';
+    this.searchElement.placeholder = this.settings.placeholder;
+    this.searchElement.addEventListener('keyup', debounce(this.onSearch, 100));
+    this.searchElement.addEventListener('search', debounce(this.onSearch, 100));
+    this.dropdownElement.appendChild(this.searchElement);
 
     // create the loading element
     this.loadingElement = create('div', [cls.loading], this.settings.loadingText);
@@ -209,6 +225,12 @@ export class TreeSelect {
     element.appendChild(item.itemElement);
   }
 
+  private renderControl(): void {
+    if (!this.controlElement) return;
+
+    this.controlElement.innerHTML = `${this.selected.length} ${this.settings.selectedText}`;
+  }
+
   private renderItem(item: TreeItem): void {
     visible(item.childrenElement, !item.collapsed);
     visible(item.itemElement, !item.hidden);
@@ -245,6 +267,7 @@ export class TreeSelect {
     setInputValues(this.rootElement, this.selected, this.settings.delimiter);
 
     this.items.forEach(this.renderItem);
+    this.renderControl();
 
     if (this.settings.onSelect) this.settings.onSelect(this.selected);
   }
@@ -266,15 +289,15 @@ export class TreeSelect {
     if (this.search.length === 0) {
       updateItems(this.items, { hidden: false, collapsed: true });
     } else {
-      updateItems(this.items, { hidden: true, collapsed: false });
+      updateItems(this.items, { hidden: true, collapsed: true });
       updateItems(this.items, item => {
-        const match = item.name.toLowerCase().includes(this.search.toLowerCase());
+        const match = item.search.includes(this.search.toLowerCase());
         if (!match) return;
 
         item.hidden = false;
 
         updateItemDescendants(this.items, item, { hidden: false });
-        updateItemAscendants(this.items, item, { hidden: false });
+        updateItemAscendants(this.items, item, { hidden: false, collapsed: false });
       });
     }
 
@@ -310,6 +333,7 @@ export class TreeSelect {
     populateItems(this.items, item => this.selected.includes(item.id) && item.depth === this.depth);
 
     this.items.forEach(this.renderItem);
+    this.renderControl();
   }
 }
 

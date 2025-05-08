@@ -6,16 +6,17 @@ export function createItems(
   mount: (item: TreeItem, element: HTMLElement) => void,
   element: HTMLElement,
   depth: number = 0,
-  parent?: string
+  parent?: TreeItem
 ): void {
   data.forEach(record => {
     let item: TreeItem = {
       _id: `${depth}-${record.id}`,
-      parent,
+      parent: parent?._id,
       children: record.children?.map(child => `${depth + 1}-${child.id}`),
       depth,
       id: `${record.id}`,
       name: record.name,
+      search: parent ? `${parent.search} ${record.name.toLowerCase()}` : record.name.toLowerCase(),
       checked: false,
       indeterminate: false,
       collapsed: true,
@@ -28,7 +29,7 @@ export function createItems(
     mount(item, element);
 
     if (record.children && item.childrenElement) {
-      createItems(items, record.children, mount, item.childrenElement, depth + 1, item._id);
+      createItems(items, record.children, mount, item.childrenElement, depth + 1, item);
     }
 
     items.set(item._id, item);

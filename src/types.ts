@@ -15,6 +15,7 @@ export interface TreeItem {
   indeterminate: boolean;
   collapsed: boolean;
   hidden: boolean;
+  search: string;
   itemElement: HTMLElement | null;
   checkboxElement: HTMLInputElement | null;
   collapseElement: HTMLElement | null;
@@ -27,10 +28,12 @@ export interface TreeSettings {
   placeholder: string;
   delimiter: string;
   loadingText: string;
+  selectedText: string;
   data?: Data[];
   src?: string;
 
   wrapperClassName?: string;
+  controlClassName?: string;
   searchClassName?: string;
   dropdownClassName?: string;
   listClassName?: string;

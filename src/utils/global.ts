@@ -15,6 +15,16 @@ export function debounce<T extends (...args: any[]) => void>(
   };
 }
 
+export function className(element: HTMLElement | null, className: string, add: boolean): void {
+  if (!element) return;
+
+  if (add) {
+    element.classList.add(className);
+  } else {
+    element.classList.remove(className);
+  }
+}
+
 export function visible(element: HTMLElement | null, visible: boolean): void {
   if (!element) return;
 
