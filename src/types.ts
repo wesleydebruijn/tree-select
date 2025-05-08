@@ -24,7 +24,6 @@ export interface TreeItem {
 
 export interface TreeSettings {
   open: boolean;
-  multiple: boolean;
   placeholder: string;
   delimiter: string;
   loadingText: string;
@@ -36,6 +35,7 @@ export interface TreeSettings {
   controlClassName?: string;
   searchClassName?: string;
   dropdownClassName?: string;
+  loadingClassName?: string;
   listClassName?: string;
   itemClassName?: string;
   checkboxClassName?: string;

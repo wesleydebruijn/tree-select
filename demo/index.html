@@ -7,28 +7,52 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            margin: 0;
-            padding: 20px;
             max-width: 1200px;
             margin: 0 auto;
         }
-        .demo-section {
+
+        section {
             margin-bottom: 2rem;
             padding: 1rem;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
         }
 
+        .select-input {
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 5px 10px;
+            width: 200px;
+
+            background-image: url("data:image/svg+xml,%3Csvg fill='none' height='24' stroke='rgb(88 117 140)' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.25rem 1.25rem;
+            appearance: none;
+        }
+
         .tree-select-wrapper {
             position: relative;
+        }
+
+        .tree-select-search {
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 5px 10px;
         }
 
         .tree-select-dropdown {
             position: absolute;
             top: calc(100% + 5px);
             left: 0;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
             background-color: #fff;
-            padding: 5px 10px;
+            padding: 8px 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
             z-index: 1;
         }
 
@@ -39,33 +63,41 @@
         }
 
         .tree-select-item-children {
-            margin-left: 20px;
+            margin-left: 18px;
         }
+
+        .tree-select-item-label {
+            cursor: pointer;
+        }
+
+        .tree-select-item-collapse {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 13.1l-8-8 2.1-2.2 5.9 5.9 5.9-5.9 2.1 2.2z'/%3E%3C/svg%3E");
+            height: 10px;
+            width: 10px;
+            transition: transform 0.1s ease-in-out;
+        }
+
+        .tree-select-item-collapse--collapsed {
+            transform: rotate(-90deg);
+        }
+
     </style>
 </head>
 <body>
     <h1>Tree Select Demo</h1>
 
-    <div class="demo-section">
+    <section>
         <h2>Input</h2>
-        <input type="text" id="input" value="3,4" />
-    </div>
+        <input type="text" class="select-input" id="input" value="3,4" />
+    </section>
 
-    <div class="demo-section">
-        <h2>Select (single)</h2>
-        <select type="text" id="single-select">
-            <option value="3" selected>3</option>
-            <option value="4" selected>4</option>
-        </select>
-    </div>
-
-    <div class="demo-section">
+    <section>
         <h2>Select (Multiple)</h2>
-        <select type="text" id="multi-select" multiple>
+        <select type="text" class="select-input" id="multi-select" multiple>
             <option value="3" selected>3</option>
             <option value="4" selected>4</option>
         </select>
-    </div>
+    </section>
 
     <script type="module" src="./index.ts"></script>
 </body>

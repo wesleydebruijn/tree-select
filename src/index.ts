@@ -34,7 +34,6 @@ const cls = {
 export class TreeSelect {
   public settings: TreeSettings = {
     open: false,
-    multiple: false,
     placeholder: 'Search...',
     delimiter: ',',
     loadingText: 'Loading...',
@@ -94,6 +93,7 @@ export class TreeSelect {
     if (!this.loaded && !this.loading) debounce(() => this.load(), 0)();
 
     this.opened = true;
+    this.controlElement?.focus();
     className(this.controlElement, `${cls.control}--focus`, true);
     visible(this.dropdownElement, true);
 
@@ -136,6 +136,7 @@ export class TreeSelect {
     this.wrapperElement.addEventListener('keydown', this.onKeyDown);
     this.rootElement.after(this.wrapperElement);
 
+    // create the controlled element
     this.controlElement = create(
       'div',
       [cls.control, this.settings.controlClassName || this.rootElement.className],
@@ -159,7 +160,11 @@ export class TreeSelect {
     this.dropdownElement.appendChild(this.searchElement);
 
     // create the loading element
-    this.loadingElement = create('div', [cls.loading], this.settings.loadingText);
+    this.loadingElement = create(
+      'div',
+      [cls.loading, this.settings.loadingClassName],
+      this.settings.loadingText
+    );
     this.dropdownElement.appendChild(this.loadingElement);
 
     // add event listeners
@@ -205,14 +210,16 @@ export class TreeSelect {
     // create collapse element
     if (item.children) {
       item.collapseElement = create('div', [cls.itemCollapse, this.settings.collapseClassName]);
-      item.collapseElement.addEventListener('click', event => this.onItemCollapse(event, item));
     }
 
     // create label with collapse element, checkbox and name
-    const labelElement = create('label', [cls.itemLabel]);
+    const labelElement = create('div', [cls.itemLabel]);
     if (item.collapseElement) labelElement.appendChild(item.collapseElement);
     labelElement.appendChild(item.checkboxElement);
     labelElement.appendChild(create('span', [], item.name));
+    labelElement.addEventListener('click', event =>
+      item.children ? this.onItemCollapse(event, item) : this.onItemSelect(event, item)
+    );
 
     // append label and children element to root item element
     item.itemElement.appendChild(labelElement);
@@ -235,7 +242,7 @@ export class TreeSelect {
     visible(item.childrenElement, !item.collapsed);
     visible(item.itemElement, !item.hidden);
 
-    if (item.collapseElement) item.collapseElement.innerHTML = item.collapsed ? '▶' : '▼';
+    className(item.collapseElement, `${cls.itemCollapse}--collapsed`, item.collapsed);
 
     if (item.checkboxElement) {
       item.checkboxElement.checked = item.checked;
@@ -253,7 +260,9 @@ export class TreeSelect {
     if (this.settings.onLoad) this.settings.onLoad(data);
   }
 
-  private onItemSelect(_event: Event, item: TreeItem): void {
+  private onItemSelect(event: Event, item: TreeItem): void {
+    event.stopPropagation();
+
     item.checked = !item.checked;
     item.indeterminate = false;
 
@@ -272,9 +281,7 @@ export class TreeSelect {
     if (this.settings.onSelect) this.settings.onSelect(this.selected);
   }
 
-  private onItemCollapse(event: Event, item: TreeItem): void {
-    event.preventDefault();
-
+  private onItemCollapse(_event: Event, item: TreeItem): void {
     item.collapsed = !item.collapsed;
 
     this.renderItem(item);

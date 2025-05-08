@@ -457,5 +457,4 @@ const data: Data[] = [
 ];
 
 new TreeSelect('#input', { data });
-new TreeSelect('#single-select', { dataSrc: './data.json' });
 new TreeSelect('#multi-select', { dataSrc: './data.json' });
