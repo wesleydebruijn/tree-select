@@ -6,7 +6,7 @@ export function createItems(
   mount: (item: TreeItem, element: HTMLElement) => void,
   element: HTMLElement,
   depth = 0,
-  parent?: TreeItem
+  parent?: TreeItem,
 ): void {
   for (const record of data) {
     const item: TreeItem = {
@@ -29,14 +29,7 @@ export function createItems(
     mount(item, element);
 
     if (record.children && item.childrenElement) {
-      createItems(
-        items,
-        record.children,
-        mount,
-        item.childrenElement,
-        depth + 1,
-        item
-      );
+      createItems(items, record.children, mount, item.childrenElement, depth + 1, item);
     }
 
     items.set(item._id, item);
@@ -47,10 +40,7 @@ export function itemsDepth(items: Map<string, TreeItem>): number {
   return Math.max(...Array.from(items.values()).map(({ depth }) => depth));
 }
 
-export function itemValues(
-  items: Map<string, TreeItem>,
-  minDepth: number
-): string[] {
+export function itemValues(items: Map<string, TreeItem>, minDepth: number): string[] {
   return Array.from(items.values())
     .filter((item) => item.checked && item.depth >= minDepth)
     .map((item) => item.id);
@@ -58,7 +48,7 @@ export function itemValues(
 
 export function populateItems(
   items: Map<string, TreeItem>,
-  isChecked: (item: TreeItem) => boolean
+  isChecked: (item: TreeItem) => boolean,
 ): void {
   const parents = new Set<string>();
 
@@ -79,28 +69,20 @@ export function populateItems(
   }
 }
 
-export function propagateItem(
-  items: Map<string, TreeItem>,
-  item: TreeItem
-): void {
+export function propagateItem(items: Map<string, TreeItem>, item: TreeItem): void {
   if (!item.children) return;
 
   const children = item.children
     .map((id) => items.get(id))
     .filter((child): child is TreeItem => child !== undefined);
   const allChecked = children.every((child) => child.checked);
-  const someChecked = children.some(
-    (child) => child.checked || child.indeterminate
-  );
+  const someChecked = children.some((child) => child.checked || child.indeterminate);
 
   item.checked = allChecked;
   item.indeterminate = !allChecked && someChecked;
 }
 
-export function searchItems(
-  items: Map<string, TreeItem>,
-  search: string
-): void {
+export function searchItems(items: Map<string, TreeItem>, search: string): void {
   if (search.length === 0) {
     updateItems(items, { hidden: false, collapsed: true });
   } else {
@@ -131,20 +113,14 @@ export function selectItem(items: Map<string, TreeItem>, item: TreeItem): void {
   updateItemAscendants(items, item, (item) => propagateItem(items, item));
 }
 
-export function selectItemRange(
-  items: Map<string, TreeItem>,
-  from: TreeItem,
-  to: TreeItem
-): void {
-  const itemsAtDepth = Array.from(items.values()).filter(
-    (item) => item.depth === to.depth
-  );
+export function selectItemRange(items: Map<string, TreeItem>, from: TreeItem, to: TreeItem): void {
+  const itemsAtDepth = Array.from(items.values()).filter((item) => item.depth === to.depth);
 
   const currentIndex = itemsAtDepth.indexOf(to);
   const lastIndex = itemsAtDepth.indexOf(from);
 
-  const start = Math.min(currentIndex, lastIndex + 1);
-  const end = Math.max(currentIndex, lastIndex - 1);
+  const start = Math.min(currentIndex, lastIndex);
+  const end = Math.max(currentIndex, lastIndex);
   const itemsToUpdate = itemsAtDepth.slice(start, end + 1);
 
   for (const item of itemsToUpdate) {
@@ -155,18 +131,15 @@ export function selectItemRange(
 export function selectItemsByValues(
   items: Map<string, TreeItem>,
   values: string[],
-  minDepth: number
+  minDepth: number,
 ): void {
-  populateItems(
-    items,
-    (item) => values.includes(item.id) && item.depth >= minDepth
-  );
+  populateItems(items, (item) => values.includes(item.id) && item.depth >= minDepth);
 }
 
 export function updateItemAscendants(
   items: Map<string, TreeItem>,
   item: TreeItem,
-  fn: ((item: TreeItem) => void) | Partial<TreeItem>
+  fn: ((item: TreeItem) => void) | Partial<TreeItem>,
 ): void {
   if (!item.parent) return;
 
@@ -181,7 +154,7 @@ export function updateItemAscendants(
 export function updateItemDescendants(
   items: Map<string, TreeItem>,
   item: TreeItem,
-  fn: ((item: TreeItem) => void) | Partial<TreeItem>
+  fn: ((item: TreeItem) => void) | Partial<TreeItem>,
 ): void {
   if (!item.children) return;
 
@@ -197,7 +170,7 @@ export function updateItemDescendants(
 
 export function updateItems(
   items: Map<string, TreeItem>,
-  fn: ((item: TreeItem) => void) | Partial<TreeItem>
+  fn: ((item: TreeItem) => void) | Partial<TreeItem>,
 ): void {
   for (const item of items.values()) {
     Object.assign(item, fn instanceof Function ? fn(item) : fn);

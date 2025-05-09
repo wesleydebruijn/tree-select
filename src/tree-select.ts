@@ -1,24 +1,17 @@
-import "./tree-select.css";
-import { className, create, debounce, visible } from "./utils/dom";
-import { getInputElement, getInputValues, setInputValues } from "./utils/input";
 import {
-  itemsDepth,
   createItems,
   itemValues,
+  itemsDepth,
+  searchItems,
   selectItem,
   selectItemRange,
   selectItemsByValues,
-  searchItems,
   updateItems,
 } from "./utils/core";
+import { className, create, debounce, visible } from "./utils/dom";
+import { getInputElement, getInputValues, setInputValues } from "./utils/input";
 
 import type { Data, TreeItem, TreeSettings } from "./types";
-
-declare global {
-  interface HTMLElement {
-    treeSelect: TreeSelect | null;
-  }
-}
 
 export class TreeSelect {
   public settings: TreeSettings = {

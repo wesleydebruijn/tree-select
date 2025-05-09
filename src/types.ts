@@ -1,3 +1,15 @@
+import type { TreeSelect } from "./tree-select";
+
+declare global {
+  interface HTMLInputElement {
+    treeSelect?: TreeSelect | null;
+  }
+
+  interface HTMLSelectElement {
+    treeSelect?: TreeSelect | null;
+  }
+}
+
 export interface Data {
   id: string | number;
   name: string;
