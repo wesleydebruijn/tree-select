@@ -10,7 +10,7 @@ import {
   selectItemsByValues,
   searchItems,
   updateItems,
-} from "./utils/item";
+} from "./utils/core";
 
 import type { Data, TreeItem, TreeSettings } from "./types";
 
@@ -22,7 +22,7 @@ declare global {
 
 export class TreeSelect {
   public settings: TreeSettings = {
-    open: true,
+    open: false,
     clearable: true,
     searchable: true,
     collapsible: true,
