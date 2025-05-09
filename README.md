@@ -15,7 +15,7 @@ A lightweight (~4kb gzipped), zero-dependency UI control that transforms `<selec
 ## Installation
 
 ```bash
-npm install tree-select
+npm install @wesleydebruijn/tree-select
 ```
 
 ## Usage
