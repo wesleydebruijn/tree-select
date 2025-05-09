@@ -1,6 +1,20 @@
 # Tree Select
 
-A lightweight (~4kb gzipped), zero-dependency UI control that transforms `<select>` or `<input>` elements into interactive hierarchical trees with checkboxes.
+A lightweight (~3kb gzipped), zero-dependency UI control that transforms `<select>` or `<input>` elements into interactive hierarchical trees with checkboxes.
+
+[![NPM version][npm-image]][npm-url]
+[![npm download][download-image]][download-url]
+[![build status][github-actions-image]][github-actions-url]
+[![bundle size][bundlephobia-image]][bundlephobia-url]
+
+[npm-image]: http://img.shields.io/npm/v/@wesleydebruijn/tree-select.svg?style=flat-square
+[npm-url]: http://npmjs.org/package/@wesleydebruijn/tree-select
+[github-actions-image]: https://github.com/wesleydebruijn/tree-select/workflows/CI/badge.svg
+[github-actions-url]: https://github.com/wesleydebruijn/tree-select/actions
+[download-image]: https://img.shields.io/npm/dm/@wesleydebruijn/tree-select.svg?style=flat-square
+[download-url]: https://npmjs.org/package/@wesleydebruijn/tree-select
+[bundlephobia-url]: https://bundlephobia.com/package/@wesleydebruijn/tree-select
+[bundlephobia-image]: https://badgen.net/bundlephobia/minzip/@wesleydebruijn/tree-select
 
 ## Features
 
