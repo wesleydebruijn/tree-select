@@ -1,6 +1,6 @@
 {
   "name": "tree-select",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A lightweight (~4kb gzipped), zero-dependency UI control that transforms `<select>` or `<input>` elements into interactive hierarchical trees with checkboxes.",
   "main": "./dist/tree-select.js",
   "module": "./dist/tree-select.mjs",
@@ -28,7 +28,11 @@
     "format": "biome check --write .",
     "test": "jest"
   },
-  "keywords": ["typescript", "tree", "select"],
+  "keywords": [
+    "typescript",
+    "tree",
+    "select"
+  ],
   "author": "Wesley de Bruijn",
   "license": "MIT",
   "devDependencies": {
@@ -41,5 +45,7 @@
     "vite": "^6.3.5",
     "vite-plugin-dts": "^4.5.3"
   },
-  "files": ["dist"]
+  "files": [
+    "dist"
+  ]
 }
