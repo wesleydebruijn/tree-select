@@ -1,24 +1,17 @@
-import "./tree-select.css";
-import { className, create, debounce, visible } from "./utils/dom";
-import { getInputElement, getInputValues, setInputValues } from "./utils/input";
 import {
-  itemsDepth,
   createItems,
   itemValues,
+  itemsDepth,
+  searchItems,
   selectItem,
   selectItemRange,
   selectItemsByValues,
-  searchItems,
   updateItems,
 } from "./utils/core";
+import { className, create, debounce, visible } from "./utils/dom";
+import { getInputElement, getInputValues, setInputValues } from "./utils/input";
 
 import type { Data, TreeItem, TreeSettings } from "./types";
-
-declare global {
-  interface HTMLElement {
-    treeSelect: TreeSelect | null;
-  }
-}
 
 export class TreeSelect {
   public settings: TreeSettings = {
@@ -64,7 +57,7 @@ export class TreeSelect {
 
   constructor(
     input: HTMLInputElement | HTMLSelectElement | string,
-    settings: Partial<TreeSettings> = {}
+    settings: Partial<TreeSettings> = {},
   ) {
     this.settings = Object.assign(this.settings, settings);
 
@@ -153,15 +146,13 @@ export class TreeSelect {
     // create the heading element
     const headingContainer = create("div", "heading", this.settings.html);
     const headingElement = create("span", "headingSpan", this.settings.html);
-    if (this.settings.text.heading)
-      headingElement.innerHTML = this.settings.text.heading;
+    if (this.settings.text.heading) headingElement.innerHTML = this.settings.text.heading;
     headingContainer.appendChild(headingElement);
 
     // create the clear element
     if (this.settings.clearable) {
       const clearElement = create("span", "clear", this.settings.html);
-      if (this.settings.text.clear)
-        clearElement.innerHTML = this.settings.text.clear;
+      if (this.settings.text.clear) clearElement.innerHTML = this.settings.text.clear;
       clearElement.addEventListener("click", this.onClear);
       headingContainer.appendChild(clearElement);
     }
@@ -172,8 +163,7 @@ export class TreeSelect {
     if (this.settings.searchable) {
       const searchElement = create("input", "search", this.settings.html);
       searchElement.type = "search";
-      if (this.settings.text.search)
-        searchElement.placeholder = this.settings.text.search;
+      if (this.settings.text.search) searchElement.placeholder = this.settings.text.search;
       searchElement.addEventListener("keyup", debounce(this.onSearch, 100));
       searchElement.addEventListener("search", debounce(this.onSearch, 100));
       this.dropdownElement.appendChild(searchElement);
@@ -181,8 +171,7 @@ export class TreeSelect {
 
     // create the loading element
     this.loadingElement = create("div", "loading", this.settings.html);
-    if (this.settings.text.loading)
-      this.loadingElement.innerHTML = this.settings.text.loading;
+    if (this.settings.text.loading) this.loadingElement.innerHTML = this.settings.text.loading;
     this.dropdownElement.appendChild(this.loadingElement);
 
     // add event listeners
@@ -203,9 +192,7 @@ export class TreeSelect {
     this.depth = itemsDepth(this.items);
 
     this.depthValues =
-      this.settings.depthValues === "last"
-        ? this.depth
-        : this.settings.depthValues;
+      this.settings.depthValues === "last" ? this.depth : this.settings.depthValues;
 
     selectItemsByValues(this.items, this.values, this.depthValues);
 
@@ -220,9 +207,7 @@ export class TreeSelect {
 
   private mountItem(item: TreeItem, element: HTMLElement) {
     const isCollapsible =
-      item.children &&
-      item.depth >= this.settings.depthCollapsible &&
-      this.settings.collapsible;
+      item.children && item.depth >= this.settings.depthCollapsible && this.settings.collapsible;
     const isCheckable = item.depth >= this.settings.depthCheckboxes;
 
     item.collapsed = item.depth >= this.settings.depthCollapsed;
@@ -243,9 +228,7 @@ export class TreeSelect {
     if (isCheckable) {
       item.checkboxElement = create("input", "checkbox", this.settings.html);
       item.checkboxElement.type = "checkbox";
-      item.checkboxElement.addEventListener("click", (event) =>
-        this.onItemSelect(event, item)
-      );
+      item.checkboxElement.addEventListener("click", (event) => this.onItemSelect(event, item));
       labelElement.appendChild(item.checkboxElement);
     }
 
@@ -254,9 +237,7 @@ export class TreeSelect {
     labelElement.appendChild(labelSpan);
     if (isCollapsible || isCheckable) {
       labelElement.addEventListener("click", (event) =>
-        isCollapsible
-          ? this.onItemCollapse(event, item)
-          : this.onItemSelect(event, item)
+        isCollapsible ? this.onItemCollapse(event, item) : this.onItemSelect(event, item),
       );
     }
 
@@ -283,9 +264,7 @@ export class TreeSelect {
   private renderItem(item: TreeItem): void {
     visible(
       item.childrenElement,
-      !item.collapsed ||
-        item.depth < this.settings.depthCollapsible ||
-        !this.settings.collapsible
+      !item.collapsed || item.depth < this.settings.depthCollapsible || !this.settings.collapsible,
     );
     visible(item.itemElement, !item.hidden);
 
@@ -378,8 +357,7 @@ export class TreeSelect {
 
   private onChange(_event: Event): void {
     this.values = getInputValues(this.rootElement, this.settings.delimiter);
-    if (this.mounted)
-      selectItemsByValues(this.items, this.values, this.depthValues);
+    if (this.mounted) selectItemsByValues(this.items, this.values, this.depthValues);
 
     this.render();
   }

@@ -1,16 +1,18 @@
 export function getInputElement(
   input: HTMLInputElement | HTMLSelectElement | string,
 ): HTMLInputElement | HTMLSelectElement {
+  let element: HTMLInputElement | HTMLSelectElement | null;
+
   if (typeof input === "string") {
-    const element = document.querySelector<HTMLInputElement | HTMLSelectElement>(input);
-
-    if (!element) throw new Error(`Element ${input} not found`);
-    if (element.treeSelect) throw new Error("TreeSelect already initialized on element");
-
-    return element;
+    element = document.querySelector<HTMLInputElement | HTMLSelectElement>(input);
+  } else {
+    element = input;
   }
 
-  return input;
+  if (!element) throw new Error(`Element ${input} not found`);
+  if (element.treeSelect) throw new Error("TreeSelect already initialized on element");
+
+  return element;
 }
 
 export function getInputValues(
