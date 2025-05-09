@@ -26,12 +26,6 @@ jobs:
           node-version: "20.x"
           cache: "npm"
 
-      - name: Install root dependencies
-        run: npm ci
-
-      - name: Build package
-        run: npm run build
-
       - name: Install demo dependencies
         working-directory: demo
         run: npm ci
