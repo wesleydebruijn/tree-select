@@ -201,3 +201,22 @@ interface Data {
 | label       | tree-select-label        | Label container for item text and controls        |
 | labelSpan   | tree-select-label-span   | Text element within item label                    |
 | children    | tree-select-children     | Container for child items                         |
+
+
+## Development
+To set up the development environment:
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/@wesleydebruijn/tree-select.git
+   cd tree-select
+   ```
+
+2. Start the development server:
+   ```bash
+   cd demo
+   npm install
+   npm run dev
+   ```
+
+This will start a Vite development server with hot module reloading. The demo page will be available at `http://localhost:5173/tree-select/`.

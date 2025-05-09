@@ -9,8 +9,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "tree-select": resolve(__dirname, "../dist/tree-select.mjs"),
-      "tree-select.css": resolve(__dirname, "../dist/tree-select.css"),
+      "tree-select": resolve(__dirname, "../src/tree-select.ts"),
+      "tree-select.css": resolve(__dirname, "../src/tree-select.css"),
     },
   },
 });
