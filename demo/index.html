@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tree Select Demo</title>
+    <link rel="stylesheet" href="tree-select.css">
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            line-height: 1.5;
+        }
+        .demo-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        h1 {
+            margin-bottom: 2rem;
+            color: #333;
+        }
+        h2 {
+            margin-bottom: 1rem;
+            color: #444;
+        }
+        .description {
+            margin-bottom: 1rem;
+            color: #666;
+        }
+        select, input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .code-block {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+            font-family: monospace;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tree Select Demo</h1>
+
+    <div class="demo-section">
+        <h2>Select Element</h2>
+        <p class="description">Transform a select element into a tree select:</p>
+        <select id="select-demo">
+            <option value="">Select an option...</option>
+            <option value="1">Option 1</option>
+            <option value="2">Option 2</option>
+            <option value="3">Option 3</option>
+        </select>
+        <div class="code-block">
+            <pre><code>new TreeSelect('#select-demo', {
+  data,
+  searchable: true,
+  clearable: true
+});</code></pre>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h2>Input Element</h2>
+        <p class="description">Transform an input element into a tree select:</p>
+        <input type="text" id="input-demo" placeholder="Select an option...">
+        <div class="code-block">
+            <pre><code>new TreeSelect('#input-demo', {
+  data,
+  searchable: true,
+  clearable: true
+});</code></pre>
+        </div>
+    </div>
+
+    <script src="tree-select.js"></script>
+    <script>
+        // Sample data
+        const data = [
+            {
+                id: '1',
+                label: 'Fruits',
+                children: [
+                    { id: '1-1', label: 'Apple' },
+                    { id: '1-2', label: 'Banana' },
+                    { id: '1-3', label: 'Orange' }
+                ]
+            },
+            {
+                id: '2',
+                label: 'Vegetables',
+                children: [
+                    { id: '2-1', label: 'Carrot' },
+                    { id: '2-2', label: 'Broccoli' },
+                    { id: '2-3', label: 'Spinach' }
+                ]
+            },
+            {
+                id: '3',
+                label: 'Dairy',
+                children: [
+                    { id: '3-1', label: 'Milk' },
+                    { id: '3-2', label: 'Cheese' },
+                    { id: '3-3', label: 'Yogurt' }
+                ]
+            }
+        ];
+
+        // Initialize tree select on select element
+        new TreeSelect('#select-demo', {
+            data,
+            searchable: true,
+            clearable: true
+        });
+
+        // Initialize tree select on input element
+        new TreeSelect('#input-demo', {
+            data,
+            searchable: true,
+            clearable: true
+        });
+    </script>
+</body>
+</html>
