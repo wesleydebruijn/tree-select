@@ -1,6 +1,6 @@
 # Tree Select
 
-A lightweight (~3kb gzipped), zero-dependency UI control that transforms `<select>` or `<input>` elements into interactive hierarchical trees with checkboxes.
+A lightweight (~4kb gzipped), zero-dependency UI control that transforms `<select>` or `<input>` elements into interactive hierarchical trees with checkboxes.
 
 ## Features
 
@@ -8,7 +8,7 @@ A lightweight (~3kb gzipped), zero-dependency UI control that transforms `<selec
 - Customizable depth for collapsing, checkboxes and values
 - Parent/child selection propagation
 - Supports both input and select HTML elements
-- Built in functionalities like search, shift+select, clear all
+- Built in functionalities like search, shift+select, clear
 - Tailwind support by injectable classNames
 - TypeScript support
 
@@ -72,15 +72,18 @@ const treeSelect = new TreeSelect('#tree-select', settings);
 
 ```typescript
 const treeSelect = new TreeSelect('#tree-select', {
-  // Initial state
+  // UI state
   open: false,
+  collapsible: true,
+  searchable: true,
+  clearable: true,
 
   // Data configuration
   data: [...], // Tree data
   dataSrc: 'api/tree-data.json', // Or load from URL
 
   // Depth settings
-  depthCollapsable: 0, // Depth at which items become collapsible
+  depthCollapsible: 0, // Depth at which items become collapsible
   depthCollapsed: 0,   // Depth at which items are collapsed by default
   depthCheckboxes: 0,  // Depth at which checkboxes appear
   depthValues: 'last', // Use 'last' or number to specify which depth values are used
@@ -136,23 +139,28 @@ interface Data {
   children?: Data[];
 }
 ```
-
 ## Settings
 
 | Setting          | Type             | Default      | Description                                 |
 | ---------------- | ---------------- | ------------ | ------------------------------------------- |
 | open             | boolean          | false        | Whether dropdown should be open initially   |
+| clearable        | boolean          | true         | Whether to show clear button               |
+| searchable       | boolean          | true         | Whether to show search input               |
+| collapsible      | boolean          | true         | Whether nodes can be collapsed             |
 | delimiter        | string           | ','          | Delimiter for input values                  |
-| depthCollapsable | number           | 0            | Depth at which nodes become collapsible     |
+| depthCollapsible | number           | 0            | Depth at which nodes become collapsible     |
 | depthCollapsed   | number           | 0            | Depth at which nodes start collapsed        |
 | depthCheckboxes  | number           | 0            | Depth at which checkboxes start appearing   |
 | depthValues      | number \| 'last' | 'last'       | Depth at which values start being collected |
+| data             | Data[]           | undefined    | Initial data array                         |
+| dataSrc          | string           | undefined    | URL to fetch data from                     |
 | text             | object           | {}           | Text customization options                  |
+| text.heading     | string           | undefined    | Text shown in dropdown heading              |
 | text.selected    | string           | 'selected'   | Text shown after selected count             |
-| text.clear       | string           | 'clear'      | Text for clear button                       |
+| text.clear       | string           | 'Clear'      | Text for clear button                       |
 | text.loading     | string           | 'Loading...' | Text shown while loading                    |
 | text.search      | string           | 'Search...'  | Placeholder text for search input           |
-| html             | object           | {}           | HTML class names customization              |
+| html             | object           | {}           | HTML elements customization                 |
 | onLoad           | function         | undefined    | Callback when data is loaded                |
 | onOpen           | function         | undefined    | Callback when dropdown opens                |
 | onClose          | function         | undefined    | Callback when dropdown closes               |

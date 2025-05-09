@@ -41,11 +41,14 @@ export type TreeHTMLElement =
 
 export interface TreeSettings {
   open: boolean;
-  delimiter: string;
-  depthCollapsable: number;
+  clearable: boolean;
+  searchable: boolean;
+  collapsible: boolean;
+  depthCollapsible: number;
   depthCollapsed: number;
   depthCheckboxes: number;
   depthValues: number | "last";
+  delimiter: string;
   data?: Data[];
   dataSrc?: string;
   text: {

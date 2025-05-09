@@ -2,13 +2,15 @@ import "./tree-select.css";
 import { className, create, debounce, visible } from "./utils/dom";
 import { getInputElement, getInputValues, setInputValues } from "./utils/input";
 import {
+  itemsDepth,
   createItems,
-  populateItems,
+  itemValues,
   selectItem,
-  updateItemAscendants,
-  updateItemDescendants,
+  selectItemRange,
+  selectItemsByValues,
+  searchItems,
   updateItems,
-} from "./utils/items";
+} from "./utils/item";
 
 import type { Data, TreeItem, TreeSettings } from "./types";
 
@@ -20,9 +22,12 @@ declare global {
 
 export class TreeSelect {
   public settings: TreeSettings = {
-    open: false,
+    open: true,
+    clearable: true,
+    searchable: true,
+    collapsible: true,
     delimiter: ",",
-    depthCollapsable: 0,
+    depthCollapsible: 0,
     depthCollapsed: 0,
     depthCheckboxes: 0,
     depthValues: "last",
@@ -35,21 +40,22 @@ export class TreeSelect {
     html: {},
   };
 
+  // UI
   public opened = false;
   public loaded = false;
   public loading = false;
   public mounted = false;
   public search = "";
 
+  // Data
   public data: Data[] = [];
   public values: string[] = [];
-
   public items: Map<string, TreeItem> = new Map();
+  public lastItem: TreeItem | null = null;
   public depth = 0;
   public depthValues = 0;
 
-  public lastSelectedItem: TreeItem | null = null;
-
+  // DOM
   private rootElement: HTMLInputElement | HTMLSelectElement;
   private controlElement: HTMLElement | null = null;
   private wrapperElement: HTMLElement | null = null;
@@ -58,7 +64,7 @@ export class TreeSelect {
 
   constructor(
     input: HTMLInputElement | HTMLSelectElement | string,
-    settings: Partial<TreeSettings> = {},
+    settings: Partial<TreeSettings> = {}
   ) {
     this.settings = Object.assign(this.settings, settings);
 
@@ -147,26 +153,36 @@ export class TreeSelect {
     // create the heading element
     const headingContainer = create("div", "heading", this.settings.html);
     const headingElement = create("span", "headingSpan", this.settings.html);
-    if (this.settings.text.heading) headingElement.innerHTML = this.settings.text.heading;
+    if (this.settings.text.heading)
+      headingElement.innerHTML = this.settings.text.heading;
     headingContainer.appendChild(headingElement);
 
     // create the clear element
-    const clearElement = create("span", "clear", this.settings.html);
-    clearElement.addEventListener("click", this.onClear);
-    headingContainer.appendChild(clearElement);
+    if (this.settings.clearable) {
+      const clearElement = create("span", "clear", this.settings.html);
+      if (this.settings.text.clear)
+        clearElement.innerHTML = this.settings.text.clear;
+      clearElement.addEventListener("click", this.onClear);
+      headingContainer.appendChild(clearElement);
+    }
 
     this.dropdownElement.appendChild(headingContainer);
 
     // create the search element
-    const searchElement = create("input", "search", this.settings.html);
-    searchElement.type = "search";
-    if (this.settings.text.search) searchElement.placeholder = this.settings.text.search;
-    searchElement.addEventListener("keyup", debounce(this.onSearch, 100));
-    searchElement.addEventListener("search", debounce(this.onSearch, 100));
-    this.dropdownElement.appendChild(searchElement);
+    if (this.settings.searchable) {
+      const searchElement = create("input", "search", this.settings.html);
+      searchElement.type = "search";
+      if (this.settings.text.search)
+        searchElement.placeholder = this.settings.text.search;
+      searchElement.addEventListener("keyup", debounce(this.onSearch, 100));
+      searchElement.addEventListener("search", debounce(this.onSearch, 100));
+      this.dropdownElement.appendChild(searchElement);
+    }
 
     // create the loading element
     this.loadingElement = create("div", "loading", this.settings.html);
+    if (this.settings.text.loading)
+      this.loadingElement.innerHTML = this.settings.text.loading;
     this.dropdownElement.appendChild(this.loadingElement);
 
     // add event listeners
@@ -184,17 +200,14 @@ export class TreeSelect {
     // create the items
     this.items = new Map<string, TreeItem>();
     createItems(this.items, this.data, this.mountItem, listElement);
+    this.depth = itemsDepth(this.items);
 
-    // set the depth of the tree
-    this.depth = Math.max(...Array.from(this.items.values()).map((item) => item.depth));
     this.depthValues =
-      this.settings.depthValues === "last" ? this.depth : this.settings.depthValues;
+      this.settings.depthValues === "last"
+        ? this.depth
+        : this.settings.depthValues;
 
-    // populate the items
-    populateItems(
-      this.items,
-      (item) => this.values.includes(item.id) && item.depth >= this.depthValues,
-    );
+    selectItemsByValues(this.items, this.values, this.depthValues);
 
     this.render();
 
@@ -206,6 +219,12 @@ export class TreeSelect {
   }
 
   private mountItem(item: TreeItem, element: HTMLElement) {
+    const isCollapsible =
+      item.children &&
+      item.depth >= this.settings.depthCollapsible &&
+      this.settings.collapsible;
+    const isCheckable = item.depth >= this.settings.depthCheckboxes;
+
     item.collapsed = item.depth >= this.settings.depthCollapsed;
 
     // create root item element
@@ -215,25 +234,31 @@ export class TreeSelect {
     const labelElement = create("div", "label", this.settings.html);
 
     // create collapse element
-    if (item.children && item.depth >= this.settings.depthCollapsable) {
+    if (isCollapsible) {
       item.collapseElement = create("div", "collapse", this.settings.html);
       labelElement.appendChild(item.collapseElement);
     }
 
     // create checkbox element
-    if (item.depth >= this.settings.depthCheckboxes) {
+    if (isCheckable) {
       item.checkboxElement = create("input", "checkbox", this.settings.html);
       item.checkboxElement.type = "checkbox";
-      item.checkboxElement.addEventListener("click", (event) => this.onItemSelect(event, item));
+      item.checkboxElement.addEventListener("click", (event) =>
+        this.onItemSelect(event, item)
+      );
       labelElement.appendChild(item.checkboxElement);
     }
 
     const labelSpan = create("span", "labelSpan", this.settings.html);
     labelSpan.innerHTML = item.name;
     labelElement.appendChild(labelSpan);
-    labelElement.addEventListener("click", (event) =>
-      item.children ? this.onItemCollapse(event, item) : this.onItemSelect(event, item),
-    );
+    if (isCollapsible || isCheckable) {
+      labelElement.addEventListener("click", (event) =>
+        isCollapsible
+          ? this.onItemCollapse(event, item)
+          : this.onItemSelect(event, item)
+      );
+    }
 
     // append label and children element to root item element
     item.itemElement.appendChild(labelElement);
@@ -256,7 +281,12 @@ export class TreeSelect {
   }
 
   private renderItem(item: TreeItem): void {
-    visible(item.childrenElement, !item.collapsed || item.depth < this.settings.depthCollapsable);
+    visible(
+      item.childrenElement,
+      !item.collapsed ||
+        item.depth < this.settings.depthCollapsible ||
+        !this.settings.collapsible
+    );
     visible(item.itemElement, !item.hidden);
 
     className(item.collapseElement, "collapsed", item.collapsed);
@@ -273,40 +303,22 @@ export class TreeSelect {
     this.loading = false;
 
     if (!this.mounted) this.mountItems();
-
     if (this.settings.onLoad) this.settings.onLoad(data);
   }
 
   private onItemSelect(event: MouseEvent, item: TreeItem): void {
     event.stopPropagation();
 
-    if (event.shiftKey && this.lastSelectedItem) {
-      // get all items at same depth
-      const itemsAtDepth = Array.from(this.items.values()).filter((i) => i.depth === item.depth);
-
-      // find indices of current and last selected items
-      const currentIndex = itemsAtDepth.indexOf(item);
-      const lastIndex = itemsAtDepth.indexOf(this.lastSelectedItem);
-
-      // get range of items between current and last selected
-      const start = Math.min(currentIndex, lastIndex + 1);
-      const end = Math.max(currentIndex, lastIndex - 1);
-      const itemsToUpdate = itemsAtDepth.slice(start, end + 1);
-
-      // update all items in range
-      for (const item of itemsToUpdate) {
-        selectItem(this.items, item);
-      }
+    if (event.shiftKey && this.lastItem) {
+      selectItemRange(this.items, this.lastItem, item);
     } else {
       selectItem(this.items, item);
 
-      this.lastSelectedItem = item;
+      this.lastItem = item;
     }
 
-    this.values = Array.from(this.items.values())
-      .filter((item) => item.checked && item.depth >= this.depthValues)
-      .map((item) => item.id);
-
+    // update input values
+    this.values = itemValues(this.items, this.depthValues);
     setInputValues(this.rootElement, this.values, this.settings.delimiter);
 
     this.render();
@@ -325,24 +337,7 @@ export class TreeSelect {
     if (search === this.search) return;
 
     this.search = search;
-
-    if (this.search.length === 0) {
-      updateItems(this.items, { hidden: false, collapsed: true });
-    } else {
-      updateItems(this.items, { hidden: true, collapsed: true });
-      updateItems(this.items, (item) => {
-        const match = item.fullName.toLowerCase().includes(this.search.toLowerCase());
-        if (!match) return;
-
-        item.hidden = false;
-
-        updateItemDescendants(this.items, item, { hidden: false });
-        updateItemAscendants(this.items, item, {
-          hidden: false,
-          collapsed: false,
-        });
-      });
-    }
+    searchItems(this.items, search);
 
     this.render();
 
@@ -354,9 +349,10 @@ export class TreeSelect {
   }
 
   private onClear(): void {
-    this.values = [];
-
     updateItems(this.items, { checked: false, indeterminate: false });
+
+    // update input values
+    this.values = [];
     setInputValues(this.rootElement, this.values, this.settings.delimiter);
 
     this.render();
@@ -382,12 +378,8 @@ export class TreeSelect {
 
   private onChange(_event: Event): void {
     this.values = getInputValues(this.rootElement, this.settings.delimiter);
-    if (!this.mounted) return;
-
-    populateItems(
-      this.items,
-      (item) => this.values.includes(item.id) && item.depth >= this.depthValues,
-    );
+    if (this.mounted)
+      selectItemsByValues(this.items, this.values, this.depthValues);
 
     this.render();
   }
