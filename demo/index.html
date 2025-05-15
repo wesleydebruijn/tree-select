@@ -74,6 +74,30 @@
     .element-type-selector {
       min-width: 120px;
     }
+
+    .button-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .button-group button {
+      padding: 0.5rem 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #f8f8f8;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .button-group button:hover {
+      background: #eee;
+    }
+
+    .button-group button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 
@@ -86,6 +110,10 @@
       <select id="interactive-demo-select" multiple>
         <option value="">Select an option...</option>
       </select>
+      <div class="button-group">
+        <button id="init-btn" disabled>Initialize</button>
+        <button id="destroy-btn">Destroy</button>
+      </div>
     </div>
   </div>
 
@@ -582,7 +610,7 @@
       };
     }
 
-    function updateDemo() {
+    function initTreeSelect() {
       const settings = getSettingsFromForm();
       const elementType = document.getElementById('elementType').value;
 
@@ -590,10 +618,6 @@
       const inputElement = document.getElementById('interactive-demo-input');
       const selectElement = document.getElementById('interactive-demo-select');
 
-      // Destroy existing instance
-      if (treeSelectInstance) {
-        treeSelectInstance.destroy();
-      }
       // Show/hide elements based on selected type
       inputElement.style.display = elementType === 'input' ? 'block' : 'none';
       selectElement.style.display = elementType === 'select' ? 'block' : 'none';
@@ -603,14 +627,39 @@
       treeSelectInstance = new TreeSelect(targetElement, settings);
 
       document.getElementById('settings-json').textContent = JSON.stringify(settings, null, 2);
+
+      // Update button states
+      document.getElementById('init-btn').disabled = true;
+      document.getElementById('destroy-btn').disabled = false;
+    }
+
+    function destroyTreeSelect() {
+      if (treeSelectInstance) {
+        treeSelectInstance.destroy();
+        treeSelectInstance = null;
+
+        // Update button states
+        document.getElementById('init-btn').disabled = false;
+        document.getElementById('destroy-btn').disabled = true;
+      }
     }
 
     // Add event listeners to all forms
     ['settings-form', 'depth-form', 'display-form'].forEach(formId => {
-      document.getElementById(formId).addEventListener('input', updateDemo);
+      document.getElementById(formId).addEventListener('input', () => {
+        if (treeSelectInstance) {
+          destroyTreeSelect();
+          initTreeSelect();
+        }
+      });
     });
 
-    updateDemo();
+    // Add event listeners for init/destroy buttons
+    document.getElementById('init-btn').addEventListener('click', initTreeSelect);
+    document.getElementById('destroy-btn').addEventListener('click', destroyTreeSelect);
+
+    // Initial setup
+    initTreeSelect();
   </script>
 </body>
 
