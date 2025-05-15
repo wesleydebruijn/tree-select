@@ -19,6 +19,7 @@ export class TreeSelect {
     clearable: true,
     searchable: true,
     collapsible: true,
+    focus: "focus",
     delimiter: ",",
     depthCollapsible: 0,
     depthCollapsed: 0,
@@ -88,7 +89,7 @@ export class TreeSelect {
     if (!this.loaded && !this.loading) debounce(() => this.load(), 0)();
 
     this.opened = true;
-    className(this.controlElement, "focus", true);
+    className(this.controlElement, this.settings.focus, true);
     visible(this.dropdownElement, true);
 
     this.onOpen();
@@ -98,7 +99,7 @@ export class TreeSelect {
     if (!this.opened) return;
 
     this.opened = false;
-    className(this.controlElement, "focus", false);
+    className(this.controlElement, this.settings.focus, false);
     visible(this.dropdownElement, false);
 
     this.onClose();

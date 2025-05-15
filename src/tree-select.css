@@ -1,12 +1,14 @@
+/* Base wrapper */
 .tree-select-wrapper {
   position: relative;
 }
 
+/* Control element */
 .tree-select-control {
   cursor: pointer;
   border-radius: 0.5rem;
   border: 1px solid #e5e7eb;
-  padding: 0.5rem  0.75rem;
+  padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
 }
@@ -17,17 +19,11 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
 }
 
-.tree-select-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
+/* Search input */
 .tree-select-search {
   width: 100%;
   outline: none;
   display: block;
-  width: 100%;
   border-radius: 0.5rem;
   border: 1px solid #e5e7eb;
   padding: 0.25rem 0.5rem;
@@ -44,38 +40,43 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
 }
 
+/* Dropdown container */
 .tree-select-dropdown {
   position: absolute;
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  top: calc(100% + 5px);
+  gap: 0.5rem;
+  top: calc(100% + 0.5rem);
   left: 0;
   background-color: #ffffff;
-  max-height: 300px;
+  max-height: 18.75rem;
   z-index: 50;
-  padding: 10px;
+  padding: 0.625rem;
   border-radius: 0.5rem;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Clear button */
+.tree-select-clear {
+  position: absolute;
+  right: 0.3125rem;
+  top: 50%;
+  opacity: 0;
+  padding: 0 0.625rem;
+  font-size: 0.75rem;
+  transform: translateY(-50%);
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
 }
 
 .tree-select-wrapper:hover .tree-select-clear {
   opacity: 1;
 }
 
-.tree-select-clear {
-  position: absolute;
-  transition: opacity 0.2s ease-in-out;
-  right: 5px;
-  top: 50%;
-  opacity: 0;
-  padding: 0 10px;
-  font-size: 0.75rem;
-  transform: translateY(-50%);
-  cursor: pointer;
-}
-
+/* Tree list */
 .tree-select-list {
   width: 100%;
   overflow-y: auto;
@@ -83,24 +84,23 @@
   -ms-overflow-style: none;
 }
 
+/* Tree items */
 .tree-select-label {
   display: flex;
   align-items: center;
-  gap: 2px;
-}
-
-.tree-select-children {
-  margin-left: 18px;
-}
-
-.tree-select-label {
+  gap: 0.125rem;
   cursor: pointer;
 }
 
+.tree-select-children {
+  margin-left: 1.125rem;
+}
+
+/* Collapse button */
 .tree-select-collapse {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 13.1l-8-8 2.1-2.2 5.9 5.9 5.9-5.9 2.1 2.2z'/%3E%3C/svg%3E");
-  height: 10px;
-  width: 10px;
+  height: 0.625rem;
+  width: 0.625rem;
   transition: transform 0.1s ease-in-out;
 }
 

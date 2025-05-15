@@ -109,6 +109,7 @@ const treeSelect = new TreeSelect('#tree-select', {
   },
 
   // HTML customization
+  focus: 'focus',
   html: {
     wrapper: { className: 'custom-wrapper', data: { value: "custom" } },
     control: { className: 'custom-control' },
@@ -151,7 +152,6 @@ interface Data {
 }
 ```
 ## Settings
-
 | Setting          | Type             | Default      | Description                                 |
 | ---------------- | ---------------- | ------------ | ------------------------------------------- |
 | open             | boolean          | false        | Whether dropdown should be open initially   |
@@ -165,6 +165,7 @@ interface Data {
 | depthValues      | number \| 'last' | 'last'       | Depth at which values start being collected |
 | data             | Data[]           | undefined    | Initial data array                         |
 | dataSrc          | string           | undefined    | URL to fetch data from                     |
+| focus            | string           | 'focus'      | Class name applied when dropdown is focused |
 | text             | object           | {}           | Text customization options                  |
 | text.heading     | string           | undefined    | Text shown in dropdown heading              |
 | text.selected    | string           | 'selected'   | Text shown after selected count             |
@@ -185,8 +186,6 @@ interface Data {
 | wrapper     | tree-select-wrapper      | Container element wrapping the entire component   |
 | control     | tree-select-control      | Main control element showing selected count       |
 | dropdown    | tree-select-dropdown     | Dropdown container that appears when opened       |
-| heading     | tree-select-heading      | Heading section containing title and clear button |
-| headingSpan | tree-select-heading-span | Text element within heading showing title         |
 | clear       | tree-select-clear        | Clear button to remove all selections             |
 | search      | tree-select-search       | Search input field for filtering items            |
 | loading     | tree-select-loading      | Loading indicator shown while data loads          |
