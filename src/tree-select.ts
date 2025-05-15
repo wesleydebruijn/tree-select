@@ -137,6 +137,13 @@ export class TreeSelect {
     this.controlElement.addEventListener("focus", this.onFocus);
     this.wrapperElement.appendChild(this.controlElement);
 
+    if (this.settings.clearable) {
+      const clearElement = create("span", "clear", this.settings.html);
+      clearElement.innerHTML = "X";
+      clearElement.addEventListener("click", this.onClear);
+      this.wrapperElement.appendChild(clearElement);
+    }
+
     // create the dropdown element
     this.dropdownElement = create("div", "dropdown", this.settings.html);
     visible(this.dropdownElement, false);
