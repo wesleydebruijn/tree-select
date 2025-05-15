@@ -5,8 +5,6 @@ const classNames: Record<TreeHTMLElement, string> = {
   control: "tree-select-control",
   search: "tree-select-search",
   dropdown: "tree-select-dropdown",
-  heading: "tree-select-heading",
-  headingSpan: "tree-select-heading-span",
   loading: "tree-select-loading",
   list: "tree-select-list",
   item: "tree-select-item",

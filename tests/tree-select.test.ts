@@ -25,13 +25,13 @@ describe("TreeSelect", () => {
       depthCollapsed: 0,
       depthCheckboxes: 0,
       depthValues: "last",
+      focus: "focus",
+      html: {},
       text: {
         selected: "selected",
-        clear: "clear",
         loading: "Loading...",
         search: "Search...",
       },
-      html: {},
     });
 
     expect(document.body.innerHTML).toMatchSnapshot();
@@ -51,9 +51,7 @@ describe("TreeSelect", () => {
       depthCheckboxes: 3,
       depthValues: 2,
       text: {
-        heading: "Custom Heading",
         selected: "items selected",
-        clear: "remove all",
         loading: "please wait...",
         search: "filter...",
       },
@@ -73,10 +71,9 @@ describe("TreeSelect", () => {
       depthCollapsed: 1,
       depthCheckboxes: 3,
       depthValues: 2,
+      focus: "focus",
       text: {
-        heading: "Custom Heading",
         selected: "items selected",
-        clear: "remove all",
         loading: "please wait...",
         search: "filter...",
       },
@@ -129,7 +126,7 @@ describe("TreeSelect", () => {
               ],
             },
           ]),
-      })
+      }),
     );
 
     await treeSelect.load();
@@ -166,18 +163,24 @@ describe("TreeSelect", () => {
     });
 
     treeSelect.open();
-    const searchInput = document.querySelector(
-      ".tree-select-search"
-    ) as HTMLInputElement;
+    const searchInput = document.querySelector(".tree-select-search") as HTMLInputElement;
     searchInput.value = "Child 1";
     searchInput.dispatchEvent(new Event("input"));
 
     expect(document.body.innerHTML).toMatchSnapshot();
   });
 
-  it("should handle clear", () => {
+  it("should handle destroy", () => {
     const input = document.createElement("input");
-    input.value = "1,2,3";
+    document.body.appendChild(input);
+    const treeSelect = new TreeSelect(input);
+
+    treeSelect.destroy();
+    expect(document.body.innerHTML).toBe('<input style="">');
+  });
+
+  it("should clear selection when clear button is clicked", () => {
+    const input = document.createElement("input");
     document.body.appendChild(input);
     const treeSelect = new TreeSelect(input, {
       data: [
@@ -193,21 +196,15 @@ describe("TreeSelect", () => {
     });
 
     treeSelect.open();
-    const clearButton = document.querySelector(
-      ".tree-select-clear"
-    ) as HTMLElement;
+    // Simulate selecting an item
+    input.value = "2";
+    input.dispatchEvent(new Event("change"));
+
+    // Click the clear button
+    const clearButton = document.querySelector(".tree-select-clear") as HTMLElement;
     clearButton.click();
 
     expect(input.value).toBe("");
     expect(document.body.innerHTML).toMatchSnapshot();
-  });
-
-  it("should handle destroy", () => {
-    const input = document.createElement("input");
-    document.body.appendChild(input);
-    const treeSelect = new TreeSelect(input);
-
-    treeSelect.destroy();
-    expect(document.body.innerHTML).toBe('<input style="">');
   });
 });

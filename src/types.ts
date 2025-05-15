@@ -39,8 +39,6 @@ export type TreeHTMLElement =
   | "control"
   | "search"
   | "dropdown"
-  | "heading"
-  | "headingSpan"
   | "loading"
   | "list"
   | "item"
@@ -63,10 +61,9 @@ export interface TreeSettings {
   delimiter: string;
   data?: Data[];
   dataSrc?: string;
+  focus: string;
   text: {
-    heading?: string;
     selected?: string;
-    clear?: string;
     loading?: string;
     search?: string;
   };

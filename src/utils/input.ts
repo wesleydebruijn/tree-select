@@ -20,7 +20,7 @@ export function getInputValues(
   delimiter = ",",
 ): string[] {
   return input instanceof HTMLInputElement
-    ? input.value.split(delimiter)
+    ? input.value.split(delimiter).filter(Boolean)
     : Array.from(input.selectedOptions).map((option) => option.value);
 }
 
