@@ -71,7 +71,6 @@ const settings = {
   text: {
     search: 'Search items...',
     selected: 'items selected',
-    clear: 'Clear',
     loading: 'Loading...',
   },
 };
@@ -104,10 +103,8 @@ const treeSelect = new TreeSelect('#tree-select', {
 
   // Text customization
   text: {
-    heading: 'Select Items',
     search: 'Search...',
     selected: 'selected',
-    clear: 'Clear',
     loading: 'Loading...'
   },
 
@@ -171,7 +168,6 @@ interface Data {
 | text             | object           | {}           | Text customization options                  |
 | text.heading     | string           | undefined    | Text shown in dropdown heading              |
 | text.selected    | string           | 'selected'   | Text shown after selected count             |
-| text.clear       | string           | 'Clear'      | Text for clear button                       |
 | text.loading     | string           | 'Loading...' | Text shown while loading                    |
 | text.search      | string           | 'Search...'  | Placeholder text for search input           |
 | html             | object           | {}           | HTML elements customization                 |

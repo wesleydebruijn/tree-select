@@ -27,7 +27,6 @@ describe("TreeSelect", () => {
       depthValues: "last",
       text: {
         selected: "selected",
-        clear: "clear",
         loading: "Loading...",
         search: "Search...",
       },
@@ -129,7 +128,7 @@ describe("TreeSelect", () => {
               ],
             },
           ]),
-      })
+      }),
     );
 
     await treeSelect.load();
@@ -166,39 +165,10 @@ describe("TreeSelect", () => {
     });
 
     treeSelect.open();
-    const searchInput = document.querySelector(
-      ".tree-select-search"
-    ) as HTMLInputElement;
+    const searchInput = document.querySelector(".tree-select-search") as HTMLInputElement;
     searchInput.value = "Child 1";
     searchInput.dispatchEvent(new Event("input"));
 
-    expect(document.body.innerHTML).toMatchSnapshot();
-  });
-
-  it("should handle clear", () => {
-    const input = document.createElement("input");
-    input.value = "1,2,3";
-    document.body.appendChild(input);
-    const treeSelect = new TreeSelect(input, {
-      data: [
-        {
-          id: "1",
-          name: "Parent",
-          children: [
-            { id: "2", name: "Child 1" },
-            { id: "3", name: "Child 2" },
-          ],
-        },
-      ],
-    });
-
-    treeSelect.open();
-    const clearButton = document.querySelector(
-      ".tree-select-clear"
-    ) as HTMLElement;
-    clearButton.click();
-
-    expect(input.value).toBe("");
     expect(document.body.innerHTML).toMatchSnapshot();
   });
 
