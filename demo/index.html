@@ -59,9 +59,42 @@
     }
 
     .settings-group h3 {
-      margin: 0 0 0.5rem 0;
+      margin: 0 0 0.8rem 0;
       font-size: 1rem;
       color: #555;
+    }
+
+    .settings-group form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .settings-group input[type="text"],
+    .settings-group input[type="number"],
+    .settings-group select {
+      padding: 0.3rem;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      font-size: 0.9rem;
+      width: auto;
+    }
+
+    .settings-group input[type="number"] {
+      width: 50px;
+    }
+
+    .settings-group input[type="text"] {
+      width: 30px;
+      text-align: center;
+    }
+
+    .settings-group select {
+      width: 80px;
+    }
+
+    .settings-group input[type="checkbox"] {
+      margin: 0;
     }
 
     .input-section {
@@ -98,6 +131,15 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
+
+    .settings-group label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: #444;
+    }
   </style>
 </head>
 
@@ -122,7 +164,7 @@
       <div class="settings-group">
         <h3>Basic Options</h3>
         <form id="settings-form">
-          <label><input type="checkbox" name="open" /> Open by default</label>
+          <label><input type="checkbox" name="open" /> Opened</label>
           <label><input type="checkbox" name="clearable" checked /> Clearable</label>
           <label><input type="checkbox" name="searchable" checked /> Searchable</label>
           <label><input type="checkbox" name="collapsible" checked /> Collapsible</label>
