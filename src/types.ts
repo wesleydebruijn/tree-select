@@ -53,6 +53,7 @@ export type TreeHTMLElement =
 
 export interface TreeSettings {
   open: boolean;
+  mode: "horizontal" | "vertical";
   clearable: boolean;
   searchable: boolean;
   collapsible: boolean;

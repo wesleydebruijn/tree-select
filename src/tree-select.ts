@@ -16,6 +16,7 @@ import type { Data, TreeItem, TreeSettings } from "./types";
 export class TreeSelect {
   public settings: TreeSettings = {
     open: false,
+    mode: "vertical",
     clearable: true,
     searchable: true,
     collapsible: true,
