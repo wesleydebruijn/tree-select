@@ -191,12 +191,12 @@ export class TreeSelect {
     );
 
     // create the lists elements
+    const length = this.settings.results ? 2 : 1;
+
     this.listsElements = Array.from(
       {
         length:
-          this.settings.mode === "horizontal"
-            ? this.depth + (this.settings.results ? 2 : 1)
-            : 1,
+          this.settings.mode === "horizontal" ? this.depth + length : length,
       },
       () => {
         const listElement = create("div", "list", this.settings.html);
@@ -216,13 +216,18 @@ export class TreeSelect {
 
       if (this.settings.mode === "horizontal") {
         this.listsElements[item.depth].appendChild(item.itemElement);
-        if (this.settings.results && item.depth >= this.depthValues)
-          this.listsElements[this.depth + 1].appendChild(item.resultElement);
       } else {
         const parent = item.parent ? this.items.get(item.parent) : null;
         const parentElement = parent?.childrenElement || this.listsElements[0];
 
         parentElement.appendChild(item.itemElement);
+      }
+
+      // append the result element to the last list element
+      if (this.settings.results && item.depth >= this.depthValues) {
+        this.listsElements[this.listsElements.length - 1].appendChild(
+          item.resultElement
+        );
       }
     }
 
@@ -318,7 +323,7 @@ export class TreeSelect {
     className(item.collapseElement, "collapsed", item.collapsed);
     className(item.itemElement, "active", this.activeItems.includes(item));
 
-    visible(item.resultElement, item.checked);
+    visible(item.resultElement, !item.hidden && item.checked);
 
     if (!item.checkboxElement) return;
 
