@@ -182,37 +182,41 @@ export class TreeSelect {
   }
 
   private mountItems(): void {
-    for (const item of this.items.values()) {
-      this.mountItem(item);
-    }
-
+    // create the list container element
     this.listContainerElement = create(
       "div",
       "listContainer",
       this.settings.html
     );
 
-    if (this.settings.mode === "horizontal") {
-      this.listsElements = Array.from({ length: this.depth + 1 }, () => {
+    // create the lists elements
+    this.listsElements = Array.from(
+      { length: this.settings.mode === "horizontal" ? this.depth + 1 : 1 },
+      () => {
         const listElement = create("div", "list", this.settings.html);
-        this.dropdownElement?.appendChild(listElement);
+        this.listContainerElement?.appendChild(listElement);
         return listElement;
-      });
-
-      for (const item of this.items.values()) {
-        this.listsElements[item.depth]?.appendChild(item.itemElement!);
       }
-    } else {
-      // create the list element
-      this.listsElements = [create("div", "list", this.settings.html)];
+    );
 
-      for (const item of this.items.values()) {
+    // mount the items
+    for (const item of this.items.values()) {
+      this.mountItem(item);
+    }
+
+    // append the items to the lists elements
+    for (const item of this.items.values()) {
+      if (!item.itemElement) continue;
+
+      if (this.settings.mode === "horizontal") {
+        this.listsElements[item.depth].appendChild(item.itemElement);
+      } else {
         const parent = item.parent && this.items.get(item.parent);
 
-        if (parent) {
-          parent.childrenElement?.appendChild(item.itemElement!);
+        if (parent && parent.childrenElement) {
+          parent.childrenElement.appendChild(item.itemElement);
         } else {
-          this.listsElements[0]?.appendChild(item.itemElement!);
+          this.listsElements[0].appendChild(item.itemElement);
         }
       }
     }
@@ -221,9 +225,6 @@ export class TreeSelect {
 
     // append the list element to the dropdown element
     visible(this.loadingElement, false);
-    for (const listElement of this.listsElements) {
-      this.listContainerElement?.appendChild(listElement);
-    }
     this.dropdownElement?.appendChild(this.listContainerElement);
 
     this.mounted = true;
