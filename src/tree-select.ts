@@ -21,6 +21,7 @@ export class TreeSelect {
     clearable: true,
     searchable: true,
     collapsible: true,
+    results: true,
     focus: "focus",
     delimiter: ",",
     depthCollapsible: 0,
@@ -191,7 +192,12 @@ export class TreeSelect {
 
     // create the lists elements
     this.listsElements = Array.from(
-      { length: this.settings.mode === "horizontal" ? this.depth + 2 : 1 },
+      {
+        length:
+          this.settings.mode === "horizontal"
+            ? this.depth + (this.settings.results ? 2 : 1)
+            : 1,
+      },
       () => {
         const listElement = create("div", "list", this.settings.html);
         this.listContainerElement?.appendChild(listElement);
@@ -210,7 +216,7 @@ export class TreeSelect {
 
       if (this.settings.mode === "horizontal") {
         this.listsElements[item.depth].appendChild(item.itemElement);
-        if (item.depth >= this.depthValues)
+        if (this.settings.results && item.depth >= this.depthValues)
           this.listsElements[this.depth + 1].appendChild(item.resultElement);
       } else {
         const parent = item.parent ? this.items.get(item.parent) : null;

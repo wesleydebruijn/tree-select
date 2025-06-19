@@ -57,6 +57,7 @@ export interface TreeSettings {
   clearable: boolean;
   searchable: boolean;
   collapsible: boolean;
+  results: boolean;
   mode: "horizontal" | "vertical";
   depthCollapsible: number;
   depthCollapsed: number;

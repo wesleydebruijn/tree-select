@@ -168,6 +168,7 @@
           <label><input type="checkbox" name="clearable" checked /> Clearable</label>
           <label><input type="checkbox" name="searchable" checked /> Searchable</label>
           <label><input type="checkbox" name="collapsible" checked /> Collapsible</label>
+          <label><input type="checkbox" name="results" checked /> Results</label>
           <label>Mode:
             <select name="mode">
               <option value="vertical">Vertical</option>
@@ -647,6 +648,7 @@
         clearable: formData.has('clearable'),
         searchable: formData.has('searchable'),
         collapsible: formData.has('collapsible'),
+        results: formData.has('results'),
         mode: formData.get('mode'),
         delimiter: displayData.get('delimiter') || ',',
         depthCollapsible: Number(depthData.get('depthCollapsible')),
