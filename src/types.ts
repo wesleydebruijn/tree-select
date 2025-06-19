@@ -40,6 +40,7 @@ export type TreeHTMLElement =
   | "search"
   | "dropdown"
   | "loading"
+  | "listContainer"
   | "list"
   | "item"
   | "checkbox"

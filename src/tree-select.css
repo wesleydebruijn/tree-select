@@ -54,7 +54,7 @@
   padding: 0.625rem;
   border-radius: 0.5rem;
   border: 1px solid #e5e7eb;
-  box-shadow: 
+  box-shadow:
     0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
@@ -77,14 +77,26 @@
 }
 
 /* Tree list */
+.tree-select-list-container {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  overflow-x: auto;
+}
+
 .tree-select-list {
   width: 100%;
+  min-width: 200px;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
 /* Tree items */
+.tree-select-item.active {
+  background-color: #f0f9ff;
+}
+
 .tree-select-label {
   display: flex;
   align-items: center;

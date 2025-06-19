@@ -1,5 +1,6 @@
 import {
   createItems,
+  itemAscendants,
   itemValues,
   itemsDepth,
   searchItems,
@@ -46,6 +47,8 @@ export class TreeSelect {
   public values: string[] = [];
   public items: Map<string, TreeItem> = new Map();
   public lastItem: TreeItem | null = null;
+  public activeItem: TreeItem | null = null;
+  public activeItems: TreeItem[] = [];
   public depth = 0;
   public depthValues = 0;
 
@@ -55,6 +58,7 @@ export class TreeSelect {
   private wrapperElement: HTMLElement | null = null;
   private dropdownElement: HTMLElement | null = null;
   private loadingElement: HTMLElement | null = null;
+  private listContainerElement: HTMLElement | null = null;
   private listsElements: HTMLElement[] = [];
 
   constructor(
@@ -194,6 +198,12 @@ export class TreeSelect {
       this.mountItem(item);
     }
 
+    this.listContainerElement = create(
+      "div",
+      "listContainer",
+      this.settings.html
+    );
+
     if (this.settings.mode === "horizontal") {
       this.listsElements = Array.from({ length: this.depth + 1 }, () => {
         const listElement = create("div", "list", this.settings.html);
@@ -224,18 +234,18 @@ export class TreeSelect {
     // append the list element to the dropdown element
     visible(this.loadingElement, false);
     for (const listElement of this.listsElements) {
-      this.dropdownElement?.appendChild(listElement);
+      this.listContainerElement?.appendChild(listElement);
     }
+    this.dropdownElement?.appendChild(this.listContainerElement);
 
     this.mounted = true;
   }
 
   private mountItem(item: TreeItem): void {
-    const isCollapsible =
+    const isClickable =
       item.children &&
       item.depth >= this.settings.depthCollapsible &&
-      this.settings.collapsible &&
-      this.settings.mode === "vertical";
+      this.settings.collapsible;
     const isCheckable = item.depth >= this.settings.depthCheckboxes;
 
     item.collapsed = item.depth >= this.settings.depthCollapsed;
@@ -247,7 +257,7 @@ export class TreeSelect {
     const labelElement = create("div", "label", this.settings.html);
 
     // create collapse element
-    if (isCollapsible) {
+    if (isClickable && this.settings.mode === "vertical") {
       item.collapseElement = create("div", "collapse", this.settings.html);
       labelElement.appendChild(item.collapseElement);
     }
@@ -265,10 +275,10 @@ export class TreeSelect {
     const labelSpan = create("span", "labelSpan", this.settings.html);
     labelSpan.innerHTML = item.name;
     labelElement.appendChild(labelSpan);
-    if (isCollapsible || isCheckable) {
+    if (isClickable || isCheckable) {
       labelElement.addEventListener("click", (event) =>
-        isCollapsible
-          ? this.onItemCollapse(event, item)
+        isClickable
+          ? this.onItemClick(event, item)
           : this.onItemSelect(event, item)
       );
     }
@@ -297,9 +307,16 @@ export class TreeSelect {
         item.depth < this.settings.depthCollapsible ||
         !this.settings.collapsible
     );
-    visible(item.itemElement, !item.hidden);
+    visible(
+      item.itemElement,
+      !item.hidden &&
+        (this.settings.mode !== "horizontal" ||
+          item.depth === 0 ||
+          this.activeItems.some((a) => a._id === item.parent))
+    );
 
     className(item.collapseElement, "collapsed", item.collapsed);
+    className(item.itemElement, "active", this.activeItems.includes(item));
 
     if (!item.checkboxElement) return;
 
@@ -336,10 +353,17 @@ export class TreeSelect {
     if (this.settings.onSelect) this.settings.onSelect(this.values);
   }
 
-  private onItemCollapse(_event: Event, item: TreeItem): void {
+  private onItemClick(_event: Event, item: TreeItem): void {
     item.collapsed = !item.collapsed;
 
-    this.renderItem(item);
+    if (this.settings.mode === "horizontal") {
+      this.activeItem = item;
+      this.activeItems = this.activeItem
+        ? [...itemAscendants(this.items, this.activeItem), this.activeItem]
+        : [];
+    }
+
+    this.render();
   }
 
   private onSearch(event: Event): void {

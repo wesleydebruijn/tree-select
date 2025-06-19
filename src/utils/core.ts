@@ -31,6 +31,20 @@ export function createItems(
   }
 }
 
+export function itemAscendants(
+  items: Map<string, TreeItem>,
+  item: TreeItem,
+  ascendants: TreeItem[] = []
+): TreeItem[] {
+  if (!item.parent) return ascendants;
+
+  const parent = items.get(item.parent);
+  if (!parent) return ascendants;
+
+  ascendants.push(parent);
+  return itemAscendants(items, parent, ascendants);
+}
+
 export function itemsDepth(items: Map<string, TreeItem>): number {
   return Math.max(...Array.from(items.values()).map(({ depth }) => depth));
 }

@@ -6,6 +6,7 @@ const classNames: Record<TreeHTMLElement, string> = {
   search: "tree-select-search",
   dropdown: "tree-select-dropdown",
   loading: "tree-select-loading",
+  listContainer: "tree-select-list-container",
   list: "tree-select-list",
   item: "tree-select-item",
   checkbox: "tree-select-checkbox",
@@ -18,7 +19,7 @@ const classNames: Record<TreeHTMLElement, string> = {
 
 export function debounce<T extends (...args: Parameters<T>) => void>(
   func: T,
-  wait: number,
+  wait: number
 ): (...args: Parameters<T>) => void {
   let timeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -33,7 +34,11 @@ export function debounce<T extends (...args: Parameters<T>) => void>(
   };
 }
 
-export function className(element: HTMLElement | null, className: string, add: boolean): void {
+export function className(
+  element: HTMLElement | null,
+  className: string,
+  add: boolean
+): void {
   if (!element) return;
 
   if (add) {
@@ -52,7 +57,7 @@ export function visible(element: HTMLElement | null, visible: boolean): void {
 export function create<K extends keyof HTMLElementTagNameMap>(
   tagName: K,
   key: TreeHTMLElement,
-  settings: { [key in TreeHTMLElement]?: { className?: string; data?: object } },
+  settings: { [key in TreeHTMLElement]?: { className?: string; data?: object } }
 ): HTMLElementTagNameMap[K] {
   const element = document.createElement(tagName);
   const { className, data } = settings[key] || {};
