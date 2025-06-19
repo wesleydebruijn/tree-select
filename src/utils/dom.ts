@@ -15,6 +15,7 @@ const classNames: Record<TreeHTMLElement, string> = {
   label: "tree-select-label",
   labelSpan: "tree-select-label-span",
   children: "tree-select-children",
+  result: "tree-select-result",
 };
 
 export function debounce<T extends (...args: Parameters<T>) => void>(
