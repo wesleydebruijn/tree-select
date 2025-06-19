@@ -55,7 +55,6 @@ export class TreeSelect {
   private wrapperElement: HTMLElement | null = null;
   private dropdownElement: HTMLElement | null = null;
   private loadingElement: HTMLElement | null = null;
-  private listElement: HTMLElement | null = null;
   private listsElements: HTMLElement[] = [];
 
   constructor(
@@ -191,27 +190,42 @@ export class TreeSelect {
 
     selectItemsByValues(this.items, this.values, this.depthValues);
 
-    // create the list element
-    this.listElement = create("div", "list", this.settings.html);
-
     for (const item of this.items.values()) {
       this.mountItem(item);
     }
 
-    for (const item of this.items.values()) {
-      item.parent
-        ? this.items
-            .get(item.parent)
-            ?.childrenElement?.appendChild(item.itemElement!)
-        : this.listElement?.appendChild(item.itemElement!);
+    if (this.settings.mode !== "horizontal") {
+      this.listsElements = Array.from({ length: this.depth + 1 }, () => {
+        const listElement = create("div", "list", this.settings.html);
+        this.dropdownElement?.appendChild(listElement);
+        return listElement;
+      });
+
+      for (const item of this.items.values()) {
+        this.listsElements[item.depth]?.appendChild(item.itemElement!);
+      }
+    } else {
+      // create the list element
+      this.listsElements = [create("div", "list", this.settings.html)];
+
+      for (const item of this.items.values()) {
+        const parent = item.parent && this.items.get(item.parent);
+
+        if (parent) {
+          parent.childrenElement?.appendChild(item.itemElement!);
+        } else {
+          this.listsElements[0]?.appendChild(item.itemElement!);
+        }
+      }
     }
 
     this.render();
 
     // append the list element to the dropdown element
     visible(this.loadingElement, false);
-    if (this.dropdownElement)
-      this.dropdownElement.appendChild(this.listElement);
+    for (const listElement of this.listsElements) {
+      this.dropdownElement?.appendChild(listElement);
+    }
 
     this.mounted = true;
   }
