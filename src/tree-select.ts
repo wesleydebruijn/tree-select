@@ -194,7 +194,7 @@ export class TreeSelect {
       this.mountItem(item);
     }
 
-    if (this.settings.mode !== "horizontal") {
+    if (this.settings.mode === "horizontal") {
       this.listsElements = Array.from({ length: this.depth + 1 }, () => {
         const listElement = create("div", "list", this.settings.html);
         this.dropdownElement?.appendChild(listElement);
@@ -234,7 +234,8 @@ export class TreeSelect {
     const isCollapsible =
       item.children &&
       item.depth >= this.settings.depthCollapsible &&
-      this.settings.collapsible;
+      this.settings.collapsible &&
+      this.settings.mode === "vertical";
     const isCheckable = item.depth >= this.settings.depthCheckboxes;
 
     item.collapsed = item.depth >= this.settings.depthCollapsed;
