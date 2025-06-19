@@ -20,6 +20,7 @@ describe("TreeSelect", () => {
       clearable: true,
       searchable: true,
       collapsible: true,
+      mode: "horizontal",
       delimiter: ",",
       depthCollapsible: 0,
       depthCollapsed: 0,
@@ -45,6 +46,7 @@ describe("TreeSelect", () => {
       clearable: false,
       searchable: false,
       collapsible: false,
+      mode: "vertical",
       delimiter: "|",
       depthCollapsible: 2,
       depthCollapsed: 1,
@@ -66,6 +68,7 @@ describe("TreeSelect", () => {
       clearable: false,
       searchable: false,
       collapsible: false,
+      mode: "vertical",
       delimiter: "|",
       depthCollapsible: 2,
       depthCollapsed: 1,
@@ -126,7 +129,7 @@ describe("TreeSelect", () => {
               ],
             },
           ]),
-      }),
+      })
     );
 
     await treeSelect.load();
@@ -163,7 +166,9 @@ describe("TreeSelect", () => {
     });
 
     treeSelect.open();
-    const searchInput = document.querySelector(".tree-select-search") as HTMLInputElement;
+    const searchInput = document.querySelector(
+      ".tree-select-search"
+    ) as HTMLInputElement;
     searchInput.value = "Child 1";
     searchInput.dispatchEvent(new Event("input"));
 
@@ -201,7 +206,9 @@ describe("TreeSelect", () => {
     input.dispatchEvent(new Event("change"));
 
     // Click the clear button
-    const clearButton = document.querySelector(".tree-select-clear") as HTMLElement;
+    const clearButton = document.querySelector(
+      ".tree-select-clear"
+    ) as HTMLElement;
     clearButton.click();
 
     expect(input.value).toBe("");

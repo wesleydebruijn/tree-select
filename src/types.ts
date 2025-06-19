@@ -40,6 +40,7 @@ export type TreeHTMLElement =
   | "search"
   | "dropdown"
   | "loading"
+  | "listContainer"
   | "list"
   | "item"
   | "checkbox"
@@ -54,6 +55,7 @@ export interface TreeSettings {
   clearable: boolean;
   searchable: boolean;
   collapsible: boolean;
+  mode: "horizontal" | "vertical";
   depthCollapsible: number;
   depthCollapsed: number;
   depthCheckboxes: number;

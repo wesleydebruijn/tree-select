@@ -168,6 +168,12 @@
           <label><input type="checkbox" name="clearable" checked /> Clearable</label>
           <label><input type="checkbox" name="searchable" checked /> Searchable</label>
           <label><input type="checkbox" name="collapsible" checked /> Collapsible</label>
+          <label>Mode:
+            <select name="mode">
+              <option value="vertical">Vertical</option>
+              <option value="horizontal">Horizontal</option>
+            </select>
+          </label>
         </form>
       </div>
 
@@ -188,7 +194,7 @@
       </div>
 
       <div class="settings-group">
-        <h3>Display Options</h3>
+        <h3>Input Options</h3>
         <form id="display-form">
           <label>Delimiter: <input type="text" name="delimiter" value="," size="2" /></label>
           <label>Element Type:
@@ -641,6 +647,7 @@
         clearable: formData.has('clearable'),
         searchable: formData.has('searchable'),
         collapsible: formData.has('collapsible'),
+        mode: formData.get('mode'),
         delimiter: displayData.get('delimiter') || ',',
         depthCollapsible: Number(depthData.get('depthCollapsible')),
         depthCollapsed: Number(depthData.get('depthCollapsed')),
@@ -668,7 +675,9 @@
       const targetElement = elementType === 'select' ? '#interactive-demo-select' : '#interactive-demo-input';
       treeSelectInstance = new TreeSelect(targetElement, settings);
 
-      document.getElementById('settings-json').textContent = JSON.stringify(settings, null, 2);
+      const settingsWithoutData = { ...settings };
+      delete settingsWithoutData.data;
+      document.getElementById('settings-json').textContent = JSON.stringify(settingsWithoutData, null, 2);
 
       // Update button states
       document.getElementById('init-btn').disabled = true;
