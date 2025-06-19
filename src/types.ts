@@ -29,6 +29,7 @@ export interface TreeItem {
   collapsed: boolean;
   hidden: boolean;
   itemElement: HTMLElement | null;
+  resultElement: HTMLElement | null;
   checkboxElement: HTMLInputElement | null;
   collapseElement: HTMLElement | null;
   childrenElement: HTMLElement | null;
@@ -48,7 +49,8 @@ export type TreeHTMLElement =
   | "clear"
   | "label"
   | "labelSpan"
-  | "children";
+  | "children"
+  | "result";
 
 export interface TreeSettings {
   open: boolean;

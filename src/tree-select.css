@@ -84,6 +84,19 @@
   overflow-x: auto;
 }
 
+.tree-select-result {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.25rem;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tree-select-result:hover {
+  background-color: #f0f9ff;
+}
+
 .tree-select-list {
   width: 100%;
   min-width: 200px;
