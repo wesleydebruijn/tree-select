@@ -21,6 +21,7 @@ export class TreeSelect {
     clearable: true,
     searchable: true,
     collapsible: true,
+    results: true,
     focus: "focus",
     delimiter: ",",
     depthCollapsible: 0,
@@ -190,8 +191,13 @@ export class TreeSelect {
     );
 
     // create the lists elements
+    const length = this.settings.results ? 2 : 1;
+
     this.listsElements = Array.from(
-      { length: this.settings.mode === "horizontal" ? this.depth + 1 : 1 },
+      {
+        length:
+          this.settings.mode === "horizontal" ? this.depth + length : length,
+      },
       () => {
         const listElement = create("div", "list", this.settings.html);
         this.listContainerElement?.appendChild(listElement);
@@ -206,7 +212,7 @@ export class TreeSelect {
 
     // append the items to the lists elements
     for (const item of this.items.values()) {
-      if (!item.itemElement) continue;
+      if (!item.itemElement || !item.resultElement) continue;
 
       if (this.settings.mode === "horizontal") {
         this.listsElements[item.depth].appendChild(item.itemElement);
@@ -215,6 +221,13 @@ export class TreeSelect {
         const parentElement = parent?.childrenElement || this.listsElements[0];
 
         parentElement.appendChild(item.itemElement);
+      }
+
+      // append the result element to the last list element
+      if (this.settings.results && item.depth >= this.depthValues) {
+        this.listsElements[this.listsElements.length - 1].appendChild(
+          item.resultElement
+        );
       }
     }
 
@@ -275,6 +288,12 @@ export class TreeSelect {
       item.childrenElement = create("div", "children", this.settings.html);
       item.itemElement.appendChild(item.childrenElement);
     }
+
+    item.resultElement = create("div", "result", this.settings.html);
+    item.resultElement.innerHTML = item.fullName;
+    item.resultElement.addEventListener("click", (event) =>
+      this.onItemSelect(event, item)
+    );
   }
 
   private render(): void {
@@ -303,6 +322,8 @@ export class TreeSelect {
 
     className(item.collapseElement, "collapsed", item.collapsed);
     className(item.itemElement, "active", this.activeItems.includes(item));
+
+    visible(item.resultElement, !item.hidden && item.checked);
 
     if (!item.checkboxElement) return;
 

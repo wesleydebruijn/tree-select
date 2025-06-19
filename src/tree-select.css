@@ -84,6 +84,36 @@
   overflow-x: auto;
 }
 
+.tree-select-result {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  padding: 0.125rem 0.25rem;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tree-select-result:hover {
+  background-color: #f0f9ff;
+}
+
+.tree-select-result::before {
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M12.7 4.7l-1.4-1.4L8 6.6 4.7 3.3 3.3 4.7 6.6 8l-3.3 3.3 1.4 1.4L8 9.4l3.3 3.3 1.4-1.4L9.4 8z'/%3E%3C/svg%3E");
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-right: 0.25rem;
+  vertical-align: middle;
+  opacity: 0.5;
+  opacity: 0;
+}
+
+.tree-select-result:hover::before {
+  opacity: 1;
+}
+
+
 .tree-select-list {
   width: 100%;
   min-width: 200px;

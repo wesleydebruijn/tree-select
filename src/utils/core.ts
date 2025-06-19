@@ -20,6 +20,7 @@ export function createItems(
       collapsed: true,
       hidden: false,
       itemElement: null,
+      resultElement: null,
       checkboxElement: null,
       collapseElement: null,
       childrenElement: null,
