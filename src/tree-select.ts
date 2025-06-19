@@ -211,7 +211,7 @@ export class TreeSelect {
       if (this.settings.mode === "horizontal") {
         this.listsElements[item.depth].appendChild(item.itemElement);
       } else {
-        const parent = item.parent && this.items.get(item.parent);
+        const parent = item.parent ? this.items.get(item.parent) : null;
 
         if (parent && parent.childrenElement) {
           parent.childrenElement.appendChild(item.itemElement);

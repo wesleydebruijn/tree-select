@@ -194,7 +194,7 @@
       </div>
 
       <div class="settings-group">
-        <h3>Display Options</h3>
+        <h3>Input Options</h3>
         <form id="display-form">
           <label>Delimiter: <input type="text" name="delimiter" value="," size="2" /></label>
           <label>Element Type:
@@ -675,7 +675,9 @@
       const targetElement = elementType === 'select' ? '#interactive-demo-select' : '#interactive-demo-input';
       treeSelectInstance = new TreeSelect(targetElement, settings);
 
-      document.getElementById('settings-json').textContent = JSON.stringify(settings, null, 2);
+      const settingsWithoutData = { ...settings };
+      delete settingsWithoutData.data;
+      document.getElementById('settings-json').textContent = JSON.stringify(settingsWithoutData, null, 2);
 
       // Update button states
       document.getElementById('init-btn').disabled = true;
