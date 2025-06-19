@@ -1,6 +1,7 @@
 import type { Data, TreeItem } from "src/types";
 import {
   createItems,
+  itemAscendants,
   itemValues,
   itemsDepth,
   populateItems,
@@ -16,16 +17,9 @@ import {
 
 describe("core", () => {
   let items: Map<string, TreeItem>;
-  const mockMount = jest.fn((item: TreeItem, _element: HTMLElement) => {
-    item.itemElement = document.createElement("div");
-    item.checkboxElement = document.createElement("input");
-    item.collapseElement = document.createElement("button");
-    item.childrenElement = document.createElement("div");
-  });
 
   beforeEach(() => {
     items = new Map();
-    mockMount.mockClear();
   });
 
   describe("createItems", () => {
@@ -41,8 +35,7 @@ describe("core", () => {
         },
       ];
 
-      const element = document.createElement("div");
-      createItems(items, data, mockMount, element);
+      createItems(items, data);
 
       expect(items.size).toBe(3);
       expect(items.get("0-1")?.name).toBe("Parent");
@@ -67,8 +60,7 @@ describe("core", () => {
         },
       ];
 
-      const element = document.createElement("div");
-      createItems(items, data, mockMount, element);
+      createItems(items, data);
 
       expect(itemsDepth(items)).toBe(2);
     });
@@ -87,8 +79,7 @@ describe("core", () => {
         },
       ];
 
-      const element = document.createElement("div");
-      createItems(items, data, mockMount, element);
+      createItems(items, data);
 
       const parent = items.get("0-1");
       const child1 = items.get("1-2");
@@ -115,8 +106,7 @@ describe("core", () => {
         },
       ];
 
-      const element = document.createElement("div");
-      createItems(items, data, mockMount, element);
+      createItems(items, data);
 
       const parent = items.get("0-1");
       const child1 = items.get("1-2");
@@ -150,8 +140,7 @@ describe("core", () => {
         },
       ];
 
-      const element = document.createElement("div");
-      createItems(items, data, mockMount, element);
+      createItems(items, data);
 
       searchItems(items, "Child 1");
 
@@ -179,8 +168,7 @@ describe("core", () => {
         },
       ];
 
-      const element = document.createElement("div");
-      createItems(items, data, mockMount, element);
+      createItems(items, data);
 
       const parent = items.get("0-1");
       if (parent) {
@@ -210,8 +198,7 @@ describe("core", () => {
         },
       ];
 
-      const element = document.createElement("div");
-      createItems(items, data, mockMount, element);
+      createItems(items, data);
 
       populateItems(items, (item) => item.id === "2");
 
@@ -235,26 +222,71 @@ describe("core", () => {
             { id: "2", name: "Child 1" },
             { id: "3", name: "Child 2" },
             { id: "4", name: "Child 3" },
+            { id: "5", name: "Child 4" },
           ],
         },
       ];
 
-      const element = document.createElement("div");
-      createItems(items, data, mockMount, element);
+      createItems(items, data);
 
       const child1 = items.get("1-2");
       const child3 = items.get("1-4");
 
       if (child1 && child3) {
         selectItemRange(items, child1, child3);
-        expect(items.get("1-2")?.checked).toBe(true);
+        expect(items.get("1-2")?.checked).toBe(false);
         expect(items.get("1-3")?.checked).toBe(true);
         expect(items.get("1-4")?.checked).toBe(true);
+        expect(items.get("1-5")?.checked).toBe(false);
 
         selectItemRange(items, child1, child3);
         expect(items.get("1-2")?.checked).toBe(false);
         expect(items.get("1-3")?.checked).toBe(false);
         expect(items.get("1-4")?.checked).toBe(false);
+        expect(items.get("1-5")?.checked).toBe(false);
+      }
+    });
+  });
+
+  describe("itemAscendants", () => {
+    it("should return array of parent items in ascending order", () => {
+      const data: Data[] = [
+        {
+          id: "1",
+          name: "Level 1",
+          children: [
+            {
+              id: "2",
+              name: "Level 2",
+              children: [{ id: "3", name: "Level 3" }],
+            },
+          ],
+        },
+      ];
+
+      createItems(items, data);
+
+      const level3 = items.get("2-3");
+      const level2 = items.get("1-2");
+      const level1 = items.get("0-1");
+
+      if (level3) {
+        const ascendants = itemAscendants(items, level3);
+        expect(ascendants).toHaveLength(2);
+        expect(ascendants[0]).toBe(level2);
+        expect(ascendants[1]).toBe(level1);
+      }
+    });
+
+    it("should return empty array for root item", () => {
+      const data: Data[] = [{ id: "1", name: "Root" }];
+
+      createItems(items, data);
+
+      const root = items.get("0-1");
+      if (root) {
+        const ascendants = itemAscendants(items, root);
+        expect(ascendants).toHaveLength(0);
       }
     });
   });
@@ -272,8 +304,7 @@ describe("core", () => {
         },
       ];
 
-      const element = document.createElement("div");
-      createItems(items, data, mockMount, element);
+      createItems(items, data);
 
       selectItemsByValues(items, ["2"], 1);
 
@@ -303,8 +334,7 @@ describe("core", () => {
         },
       ];
 
-      const element = document.createElement("div");
-      createItems(items, data, mockMount, element);
+      createItems(items, data);
 
       const level3 = items.get("2-3");
       if (level3) {
@@ -328,8 +358,7 @@ describe("core", () => {
         },
       ];
 
-      const element = document.createElement("div");
-      createItems(items, data, mockMount, element);
+      createItems(items, data);
 
       const parent = items.get("0-1");
       if (parent) {
@@ -353,8 +382,7 @@ describe("core", () => {
         },
       ];
 
-      const element = document.createElement("div");
-      createItems(items, data, mockMount, element);
+      createItems(items, data);
 
       updateItems(items, { hidden: true });
       expect(items.get("0-1")?.hidden).toBe(true);
@@ -374,8 +402,7 @@ describe("core", () => {
         },
       ];
 
-      const element = document.createElement("div");
-      createItems(items, data, mockMount, element);
+      createItems(items, data);
 
       updateItems(items, (item) => ({ hidden: item.depth === 1 }));
       expect(items.get("0-1")?.hidden).toBe(false);

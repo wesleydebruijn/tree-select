@@ -147,7 +147,10 @@ export function selectItemRange(
 
   const start = Math.min(currentIndex, lastIndex);
   const end = Math.max(currentIndex, lastIndex);
-  const itemsToUpdate = itemsAtDepth.slice(start, end + 1);
+  const itemsToUpdate = itemsAtDepth.slice(
+    start === currentIndex ? start : start + 1,
+    end === currentIndex ? end + 1 : end
+  );
 
   for (const item of itemsToUpdate) {
     selectItem(items, item);

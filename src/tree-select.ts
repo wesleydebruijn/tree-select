@@ -212,12 +212,9 @@ export class TreeSelect {
         this.listsElements[item.depth].appendChild(item.itemElement);
       } else {
         const parent = item.parent ? this.items.get(item.parent) : null;
+        const parentElement = parent?.childrenElement || this.listsElements[0];
 
-        if (parent && parent.childrenElement) {
-          parent.childrenElement.appendChild(item.itemElement);
-        } else {
-          this.listsElements[0].appendChild(item.itemElement);
-        }
+        parentElement.appendChild(item.itemElement);
       }
     }
 
