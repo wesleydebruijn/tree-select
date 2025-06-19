@@ -182,18 +182,6 @@ export class TreeSelect {
   }
 
   private mountItems(): void {
-    // create the items
-    this.items = new Map<string, TreeItem>();
-    createItems(this.items, this.data);
-    this.depth = itemsDepth(this.items);
-
-    this.depthValues =
-      this.settings.depthValues === "last"
-        ? this.depth
-        : this.settings.depthValues;
-
-    selectItemsByValues(this.items, this.values, this.depthValues);
-
     for (const item of this.items.values()) {
       this.mountItem(item);
     }
@@ -328,6 +316,17 @@ export class TreeSelect {
     this.data = data;
     this.loaded = true;
     this.loading = false;
+
+    this.items = new Map<string, TreeItem>();
+    createItems(this.items, this.data);
+    this.depth = itemsDepth(this.items);
+
+    this.depthValues =
+      this.settings.depthValues === "last"
+        ? this.depth
+        : this.settings.depthValues;
+
+    selectItemsByValues(this.items, this.values, this.depthValues);
 
     if (!this.mounted) this.mountItems();
     if (this.settings.onLoad) this.settings.onLoad(data);
