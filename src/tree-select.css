@@ -19,6 +19,12 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
 }
 
+.tree-select-control.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 /* Search input */
 .tree-select-search {
   width: 100%;
@@ -68,12 +74,12 @@
   padding: 0 0.625rem;
   font-size: 0.75rem;
   transform: translateY(-50%);
-  cursor: pointer;
   transition: opacity 0.2s ease-in-out;
 }
 
-.tree-select-wrapper:hover .tree-select-clear {
+.tree-select-control:not(.disabled):hover .tree-select-clear {
   opacity: 1;
+  cursor: pointer;
 }
 
 /* Tree list */

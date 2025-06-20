@@ -155,6 +155,8 @@
       <div class="button-group">
         <button id="init-btn" disabled>Initialize</button>
         <button id="destroy-btn">Destroy</button>
+        <button id="disable-btn">Disable</button>
+        <button id="enable-btn" disabled>Enable</button>
       </div>
     </div>
   </div>
@@ -697,6 +699,32 @@
       }
     }
 
+    function disableTreeSelect() {
+      const elementType = document.getElementById('elementType').value;
+      const target = elementType === 'select' ? 'interactive-demo-select' : 'interactive-demo-input';
+      const targetElement = document.getElementById(target);
+      targetElement.disabled = true;
+
+      // Update button states
+      document.getElementById('disable-btn').disabled = true;
+      document.getElementById('enable-btn').disabled = false;
+
+      if (treeSelectInstance) treeSelectInstance.disable();
+    }
+
+    function enableTreeSelect() {
+      const elementType = document.getElementById('elementType').value;
+      const target = elementType === 'select' ? 'interactive-demo-select' : 'interactive-demo-input';
+      const targetElement = document.getElementById(target);
+      targetElement.disabled = false;
+
+      // Update button states
+      document.getElementById('disable-btn').disabled = false;
+      document.getElementById('enable-btn').disabled = true;
+
+      if (treeSelectInstance) treeSelectInstance.enable();
+    }
+
     // Add event listeners to all forms
     ['settings-form', 'depth-form', 'display-form'].forEach(formId => {
       document.getElementById(formId).addEventListener('input', () => {
@@ -710,6 +738,8 @@
     // Add event listeners for init/destroy buttons
     document.getElementById('init-btn').addEventListener('click', initTreeSelect);
     document.getElementById('destroy-btn').addEventListener('click', destroyTreeSelect);
+    document.getElementById('disable-btn').addEventListener('click', disableTreeSelect);
+    document.getElementById('enable-btn').addEventListener('click', enableTreeSelect);
 
     // Initial setup
     initTreeSelect();

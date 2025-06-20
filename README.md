@@ -86,10 +86,12 @@ const treeSelect = new TreeSelect('#tree-select', settings);
 ```typescript
 const treeSelect = new TreeSelect('#tree-select', {
   // UI state
+  mode: 'vertical',
   open: false,
   collapsible: true,
   searchable: true,
   clearable: true,
+  results: false,
 
   // Data configuration
   data: [...], // Tree data
@@ -110,6 +112,7 @@ const treeSelect = new TreeSelect('#tree-select', {
 
   // HTML customization
   focus: 'focus',
+  disabled: 'disabled',
   html: {
     wrapper: { className: 'custom-wrapper', data: { value: "custom" } },
     control: { className: 'custom-control' },
@@ -138,6 +141,12 @@ treeSelect.close();
 // Load data & HTML tree to the DOM
 treeSelect.load();
 
+// Disable the input & control
+treeSelect.disable();
+
+// Enable the input & control
+treeSelect.enable();
+
 // Destroy the instance and return to original input/select
 treeSelect.destroy();
 ```
@@ -154,10 +163,12 @@ interface Data {
 ## Settings
 | Setting          | Type             | Default      | Description                                 |
 | ---------------- | ---------------- | ------------ | ------------------------------------------- |
+| mode             | 'vertical' \| 'horizontal'| 'vertical' | Display tree vertically or horizontally |
 | open             | boolean          | false        | Whether dropdown should be open initially   |
-| clearable        | boolean          | true         | Whether to show clear button               |
-| searchable       | boolean          | true         | Whether to show search input               |
-| collapsible      | boolean          | true         | Whether nodes can be collapsed             |
+| clearable        | boolean          | true         | Whether to show clear button                |
+| searchable       | boolean          | true         | Whether to show search input                |
+| collapsible      | boolean          | true         | Whether nodes can be collapsed              |
+| results          | boolean          | false        | Whether to show selected items on side      |
 | delimiter        | string           | ','          | Delimiter for input values                  |
 | depthCollapsible | number           | 0            | Depth at which nodes become collapsible     |
 | depthCollapsed   | number           | 0            | Depth at which nodes start collapsed        |
@@ -189,13 +200,15 @@ interface Data {
 | clear       | tree-select-clear        | Clear button to remove all selections             |
 | search      | tree-select-search       | Search input field for filtering items            |
 | loading     | tree-select-loading      | Loading indicator shown while data loads          |
-| list        | tree-select-list         | Container for the tree structure                  |
+| listContainer | tree-select-list-container | Container for all lists of the tree           |
+| list        | tree-select-list         | Container for a list of the three                 |
 | item        | tree-select-item         | Individual item in the tree                       |
 | checkbox    | tree-select-checkbox     | Checkbox input for selecting items                |
 | collapse    | tree-select-collapse     | Toggle button for expanding/collapsing nodes      |
 | label       | tree-select-label        | Label container for item text and controls        |
 | labelSpan   | tree-select-label-span   | Text element within item label                    |
 | children    | tree-select-children     | Container for child items                         |
+| result      | tree-select-result       | Individual item of selected item in the tree      |
 
 
 ## Development

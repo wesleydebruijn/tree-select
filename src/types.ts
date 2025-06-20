@@ -67,6 +67,7 @@ export interface TreeSettings {
   data?: Data[];
   dataSrc?: string;
   focus: string;
+  disabled: string;
   text: {
     selected?: string;
     loading?: string;
