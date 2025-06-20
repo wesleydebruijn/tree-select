@@ -77,7 +77,7 @@
   transition: opacity 0.2s ease-in-out;
 }
 
-.tree-select-control:not(.disabled):hover .tree-select-clear {
+.tree-select-wrapper:not(.disabled):hover .tree-select-clear {
   opacity: 1;
   cursor: pointer;
 }

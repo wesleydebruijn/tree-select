@@ -414,6 +414,7 @@ export class TreeSelect {
   private onDisable(disabled: boolean): void {
     this.disabled = disabled;
     this.rootElement.disabled = disabled;
+    className(this.wrapperElement, "disabled", disabled);
     className(this.controlElement, this.settings.disabled, disabled);
   }
 
