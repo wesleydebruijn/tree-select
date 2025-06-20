@@ -186,7 +186,7 @@ describe("TreeSelect", () => {
     const treeSelect = new TreeSelect(input);
 
     treeSelect.destroy();
-    expect(document.body.innerHTML).toBe('<input style="">');
+    expect(document.body.innerHTML).toBe('<input class="" style="">');
   });
 
   it("should clear selection when clear button is clicked", () => {

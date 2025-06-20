@@ -1,10 +1,6 @@
-/* Base wrapper */
+/* Control element */
 .tree-select-wrapper {
   position: relative;
-}
-
-/* Control element */
-.tree-select-control {
   cursor: pointer;
   border-radius: 0.5rem;
   border: 1px solid #e5e7eb;
@@ -13,7 +9,7 @@
   line-height: 1.25rem;
 }
 
-.tree-select-control.focus {
+.tree-select-wrapper.focus {
   border-color: #3b82f6;
   outline: none;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);

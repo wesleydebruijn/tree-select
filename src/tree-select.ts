@@ -99,7 +99,7 @@ export class TreeSelect {
     if (!this.loaded && !this.loading) debounce(() => this.load(), 0)();
 
     this.opened = true;
-    className(this.controlElement, this.settings.focus, true);
+    className(this.wrapperElement, this.settings.focus, true);
     visible(this.dropdownElement, true);
 
     this.onOpen();
@@ -109,7 +109,7 @@ export class TreeSelect {
     if (!this.opened) return;
 
     this.opened = false;
-    className(this.controlElement, this.settings.focus, false);
+    className(this.wrapperElement, this.settings.focus, false);
     visible(this.dropdownElement, false);
 
     this.onClose();
@@ -124,6 +124,7 @@ export class TreeSelect {
   }
 
   public destroy(): void {
+    this.rootElement.classList.remove("treeselected");
     document.removeEventListener("mousedown", this.onFocus, true);
     document.removeEventListener("focus", this.onFocus, true);
 
@@ -145,20 +146,20 @@ export class TreeSelect {
 
   private initMount(): void {
     // create the wrapper element
-    this.wrapperElement = create("div", "wrapper", this.settings.html);
+    this.wrapperElement = create(
+      "div",
+      "wrapper",
+      this.settings.html,
+      this.rootElement.className
+    );
+    this.wrapperElement.addEventListener("focus", this.onFocus);
     this.wrapperElement.addEventListener("keydown", this.onKeyDown);
     this.rootElement.after(this.wrapperElement);
 
     // create the controlled element
-    this.controlElement = create(
-      "div",
-      "control",
-      this.settings.html,
-      this.rootElement.className
-    );
+    this.controlElement = create("div", "control", this.settings.html);
     this.controlElement.tabIndex = 0;
     this.controlElement.innerHTML = `${this.values.length} ${this.settings.text.selected}`;
-    this.controlElement.addEventListener("focus", this.onFocus);
     this.wrapperElement.appendChild(this.controlElement);
 
     if (this.settings.clearable) {
@@ -193,6 +194,8 @@ export class TreeSelect {
     // add event listeners
     document.addEventListener("mousedown", this.onFocus, true);
     document.addEventListener("focus", this.onFocus, true);
+
+    this.rootElement.classList.add("treeselected");
 
     // hide the initial input element
     visible(this.rootElement, false);
