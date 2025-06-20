@@ -58,11 +58,15 @@ export function visible(element: HTMLElement | null, visible: boolean): void {
 export function create<K extends keyof HTMLElementTagNameMap>(
   tagName: K,
   key: TreeHTMLElement,
-  settings: { [key in TreeHTMLElement]?: { className?: string; data?: object } }
+  settings: {
+    [key in TreeHTMLElement]?: { className?: string; data?: object };
+  },
+  baseClassName?: string
 ): HTMLElementTagNameMap[K] {
   const element = document.createElement(tagName);
   const { className, data } = settings[key] || {};
 
+  if (baseClassName) element.classList.add(...baseClassName.split(" "));
   element.classList.add(...classNames[key].split(" "));
   if (className) element.classList.add(...className.split(" "));
   if (data) {

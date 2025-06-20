@@ -150,7 +150,12 @@ export class TreeSelect {
     this.rootElement.after(this.wrapperElement);
 
     // create the controlled element
-    this.controlElement = create("div", "control", this.settings.html);
+    this.controlElement = create(
+      "div",
+      "control",
+      this.settings.html,
+      this.rootElement.className
+    );
     this.controlElement.tabIndex = 0;
     this.controlElement.innerHTML = `${this.values.length} ${this.settings.text.selected}`;
     this.controlElement.addEventListener("focus", this.onFocus);
