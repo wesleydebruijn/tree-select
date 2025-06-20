@@ -16,13 +16,14 @@ import type { Data, TreeItem, TreeSettings } from "./types";
 
 export class TreeSelect {
   public settings: TreeSettings = {
-    mode: "horizontal",
+    mode: "vertical",
     open: false,
     clearable: true,
     searchable: true,
     collapsible: true,
-    results: true,
+    results: false,
     focus: "focus",
+    disabled: "disabled",
     delimiter: ",",
     depthCollapsible: 0,
     depthCollapsed: 0,
@@ -41,6 +42,7 @@ export class TreeSelect {
   public loaded = false;
   public loading = false;
   public mounted = false;
+  public disabled = false;
   public search = "";
 
   // Data
@@ -88,6 +90,7 @@ export class TreeSelect {
     // mount initial HTML to the DOM, without fetching data or rendering tree
     this.initMount();
 
+    if (this.rootElement.disabled) this.onDisable(true);
     if (this.settings.open) this.open();
   }
 
@@ -130,6 +133,14 @@ export class TreeSelect {
 
     this.rootElement.treeSelect = null;
     this.rootElement.removeEventListener("change", this.onChange);
+  }
+
+  public disable(): void {
+    this.onDisable(true);
+  }
+
+  public enable(): void {
+    this.onDisable(false);
   }
 
   private initMount(): void {
@@ -400,7 +411,15 @@ export class TreeSelect {
     if (event.key === "Escape") this.close();
   }
 
+  private onDisable(disabled: boolean): void {
+    this.disabled = disabled;
+    this.rootElement.disabled = disabled;
+    className(this.controlElement, this.settings.disabled, disabled);
+  }
+
   private onClear(): void {
+    if (this.disabled) return;
+
     updateItems(this.items, { checked: false, indeterminate: false });
 
     // update input values
@@ -413,6 +432,8 @@ export class TreeSelect {
   }
 
   private onOpen(): void {
+    if (this.disabled) return;
+
     if (this.settings.onOpen) this.settings.onOpen();
   }
 
@@ -421,6 +442,8 @@ export class TreeSelect {
   }
 
   private onFocus(event: Event): void {
+    if (this.disabled) return;
+
     if (this.wrapperElement?.contains(event.target as HTMLElement)) {
       this.open();
     } else {

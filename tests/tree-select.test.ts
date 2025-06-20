@@ -20,14 +20,15 @@ describe("TreeSelect", () => {
       clearable: true,
       searchable: true,
       collapsible: true,
-      results: true,
-      mode: "horizontal",
+      results: false,
+      mode: "vertical",
       delimiter: ",",
       depthCollapsible: 0,
       depthCollapsed: 0,
       depthCheckboxes: 0,
       depthValues: "last",
       focus: "focus",
+      disabled: "disabled",
       html: {},
       text: {
         selected: "selected",
@@ -78,6 +79,7 @@ describe("TreeSelect", () => {
       depthCheckboxes: 3,
       depthValues: 2,
       focus: "focus",
+      disabled: "disabled",
       text: {
         selected: "items selected",
         loading: "please wait...",
@@ -215,6 +217,22 @@ describe("TreeSelect", () => {
     clearButton.click();
 
     expect(input.value).toBe("");
+    expect(document.body.innerHTML).toMatchSnapshot();
+  });
+
+  it("should handle disable and enable", () => {
+    const input = document.createElement("input");
+    document.body.appendChild(input);
+    const treeSelect = new TreeSelect(input);
+
+    // Test disable
+    treeSelect.disable();
+    expect(input.disabled).toBe(true);
+    expect(document.body.innerHTML).toMatchSnapshot();
+
+    // Test enable
+    treeSelect.enable();
+    expect(input.disabled).toBe(false);
     expect(document.body.innerHTML).toMatchSnapshot();
   });
 });
