@@ -43,9 +43,9 @@ export function className(
   if (!element) return;
 
   if (add) {
-    element.classList.add(className);
+    element.classList.add(...className.split(" "));
   } else {
-    element.classList.remove(className);
+    element.classList.remove(...className.split(" "));
   }
 }
 
@@ -63,8 +63,8 @@ export function create<K extends keyof HTMLElementTagNameMap>(
   const element = document.createElement(tagName);
   const { className, data } = settings[key] || {};
 
-  element.classList.add(classNames[key]);
-  if (className) element.classList.add(className);
+  element.classList.add(...classNames[key].split(" "));
+  if (className) element.classList.add(...className.split(" "));
   if (data) {
     for (const [key, value] of Object.entries(data)) {
       element.dataset[key] = String(value);
