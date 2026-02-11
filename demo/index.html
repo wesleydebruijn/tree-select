@@ -4,13 +4,51 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tree Select Demo</title>
+  <title>Tree Select</title>
   <style>
     :root {
       --max-width: 1200px;
       --panel-padding: 20px;
       --main-padding: 16px;
       --input-radius: calc(var(--radius) - 2px);
+    }
+
+    :root {
+      --radius: 0.375rem;
+      --background: 0 0% 100%;
+      --foreground: 222.2 84% 4.9%;
+      --muted-foreground: 220 9% 46%;
+      --card: 0 0% 100%;
+      --border: 214.3 31.8% 91.4%;
+      --input: 214.3 31.8% 91.4%;
+      --ring: 221.2 83.2% 53.3%;
+      --secondary-bg: 220 14% 96%;
+      --max-width: 1200px;
+      --panel-padding: 20px;
+      --main-padding: 16px;
+      --input-radius: calc(var(--radius) - 2px);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      html:not(.light):not(.dark) {
+        --background: 222.2 84% 4.9%;
+        --foreground: 210 40% 98%;
+        --muted-foreground: 215 16% 57%;
+        --card: 222.2 84% 4.9%;
+        --border: 217.2 32.6% 17.5%;
+        --input: 217.2 32.6% 17.5%;
+        --secondary-bg: 222.2 54% 10%;
+      }
+    }
+
+    html.dark {
+      --background: 222.2 84% 4.9%;
+      --foreground: 210 40% 98%;
+      --muted-foreground: 215 16% 57%;
+      --card: 222.2 84% 4.9%;
+      --border: 217.2 32.6% 17.5%;
+      --input: 217.2 32.6% 17.5%;
+      --secondary-bg: 222.2 54% 10%;
     }
 
     * {
@@ -220,12 +258,13 @@
 
     .builder-main-row {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       gap: 24px;
     }
 
     .panel {
       display: flex;
+      flex: 1;
       flex-direction: column;
     }
 
@@ -252,90 +291,34 @@
     }
 
     .input-section {
-      display: flex;
-      gap: 1rem;
-      flex-direction: column;
-      margin: 0;
-    }
-
-    .settings-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 0;
+      width: 100%;
     }
 
     .settings-group {
-      background: hsl(var(--background));
-      border: 1px solid hsl(var(--border));
-      padding: 1rem;
-      border-radius: var(--input-radius);
-    }
-
-    .settings-group h3 {
-      margin: 0 0 0.8rem 0;
-      font-size: 1rem;
-      color: hsl(var(--muted-foreground));
+      display: flex;
     }
 
     .settings-group form {
       display: flex;
+      flex: 1;
       flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .settings-group input[type="text"],
-    .settings-group input[type="number"],
-    .settings-group select {
-      padding: 0.3rem;
-      border: 1px solid hsl(var(--input));
-      border-radius: var(--input-radius);
-      font-size: 0.9rem;
-      background: hsl(var(--background));
-      color: hsl(var(--foreground));
-      width: auto;
-    }
-
-    .settings-group input[type="number"] {
-      width: 50px;
-    }
-
-    .settings-group input[type="text"] {
-      width: 30px;
-      text-align: center;
-    }
-
-    .settings-group select {
-      width: 80px;
-    }
-
-    .settings-group input[type="checkbox"] {
-      margin: 0;
     }
 
     .settings-group label {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 0.5rem;
-      font-size: 0.9rem;
-      color: hsl(var(--foreground));
-      text-transform: none;
-      letter-spacing: normal;
-      font-weight: 400;
-    }
-
-    .element-type-selector {
-      min-width: 120px;
     }
 
     .button-group {
+      margin-bottom: 16px;
       display: flex;
-      gap: 0.5rem;
-      margin-top: 0.5rem;
+      flex-direction: row;
+      gap: 8px;
     }
 
     .button-group button {
+      width: 100%;
       padding: 0.5rem 1rem;
       border: 1px solid hsl(var(--border));
       border-radius: var(--input-radius);
@@ -354,16 +337,82 @@
       cursor: not-allowed;
     }
 
-    .code-block {
-      background: hsl(var(--background));
-      border: 1px solid hsl(var(--border));
-      padding: 1rem;
-      border-radius: var(--input-radius);
-      margin: 0;
-      font-family: monospace;
-      font-size: 11px;
-      overflow-x: auto;
+    /* Base form elements */
+    input:not([type="checkbox"]):not([type="radio"]) {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.8125rem;
+      line-height: 1.125rem;
       color: hsl(var(--foreground));
+      background: hsl(var(--background));
+      border: 1px solid hsl(var(--input));
+      border-radius: var(--input-radius);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input:not([type="checkbox"]):not([type="radio"])::placeholder {
+      color: hsl(var(--muted-foreground));
+    }
+
+    input:not([type="checkbox"]):not([type="radio"]):focus {
+      outline: none;
+      border-color: hsl(var(--ring));
+      box-shadow: 0 0 0 3px hsl(var(--ring) / 0.25);
+    }
+
+    input:not([type="checkbox"]):not([type="radio"]):disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    input[type="checkbox"] {
+      width: 0.875rem;
+      height: 0.875rem;
+      margin: 0;
+      accent-color: hsl(var(--ring));
+      cursor: pointer;
+    }
+
+    input[type="checkbox"]:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    select {
+      padding: 0.25rem 1.75rem 0.25rem 0.5rem;
+      font-size: 0.8125rem;
+      line-height: 1.125rem;
+      color: hsl(var(--foreground));
+      background: hsl(var(--background));
+      border: 1px solid hsl(var(--input));
+      border-radius: var(--input-radius);
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-size: 12px 12px;
+      background-position: right 0.375rem center;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: hsl(var(--ring));
+      box-shadow: 0 0 0 3px hsl(var(--ring) / 0.25);
+    }
+
+    select:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    select[multiple] {
+      padding: 0.25rem 0.5rem;
+      background-image: none;
+      min-height: 4rem;
+    }
+    
+    pre {
+      font-size: 11px;
     }
   </style>
   <script>
@@ -421,31 +470,31 @@
         </div>
         <div class="builder-main-row">
           <div class="panel">
-            <div class="demo-section">
-              <div class="input-section">
-                <input type="text" id="interactive-demo-input" placeholder="Try TreeSelect..." class="input-class" />
-                <select id="interactive-demo-select" multiple>
-                  <option value="">Select an option...</option>
-                </select>
-                <div class="button-group">
-                  <button id="init-btn" disabled>Initialize</button>
-                  <button id="destroy-btn">Destroy</button>
-                  <button id="disable-btn">Disable</button>
-                  <button id="enable-btn" disabled>Enable</button>
-                </div>
-              </div>
+            <label>Input</label>
+            <div class="input-section">
+              <input type="text" id="interactive-demo-input" placeholder="Try TreeSelect..." class="input-class" />
+              <select id="interactive-demo-select" multiple>
+                <option value="">Select an option...</option>
+              </select>
             </div>
-
+          </div>
+          <div class="panel">
+            <label>Settings</label>
             <div class="demo-section">
+              <div class="button-group">
+                <button id="init-btn" disabled>Initialize</button>
+                <button id="destroy-btn">Destroy</button>
+                <button id="disable-btn">Disable</button>
+                <button id="enable-btn" disabled>Enable</button>
+              </div>
               <div class="settings-grid">
                 <div class="settings-group">
-                  <h3>Basic Options</h3>
                   <form id="settings-form">
-                    <label><input type="checkbox" name="open" /> Opened</label>
-                    <label><input type="checkbox" name="clearable" checked /> Clearable</label>
-                    <label><input type="checkbox" name="searchable" checked /> Searchable</label>
-                    <label><input type="checkbox" name="collapsible" checked /> Collapsible</label>
-                    <label><input type="checkbox" name="results" checked /> Results</label>
+                    <label>Opened: <input type="checkbox" name="open" /></label>
+                    <label>Clearable: <input type="checkbox" name="clearable" checked /></label>
+                    <label>Searchable: <input type="checkbox" name="searchable" checked /></label>
+                    <label>Collapsible: <input type="checkbox" name="collapsible" checked /></label>
+                    <label>Results: <input type="checkbox" name="results" /></label>
                     <label>Mode:
                       <select name="mode">
                         <option value="vertical">Vertical</option>
@@ -456,7 +505,6 @@
                 </div>
 
                 <div class="settings-group">
-                  <h3>Depth Options</h3>
                   <form id="depth-form">
                     <label>Depth Collapsible: <input type="number" name="depthCollapsible" value="0" min="0" /></label>
                     <label>Depth Collapsed: <input type="number" name="depthCollapsed" value="0" min="0" /></label>
@@ -472,7 +520,6 @@
                 </div>
 
                 <div class="settings-group">
-                  <h3>Input Options</h3>
                   <form id="display-form">
                     <label>Delimiter: <input type="text" name="delimiter" value="," size="2" /></label>
                     <label>Element Type:
@@ -486,8 +533,9 @@
               </div>
             </div>
 
+            <label>Config</label>
             <div class="demo-section">
-              <pre id="settings-json" class="code-block"></pre>
+              <pre id="settings-json"></pre>
             </div>
           </div>
         </div>
@@ -503,7 +551,6 @@
   </footer>
 
   <script type="module">
-    import './style.css';
     import 'tree-select.css';
     import { TreeSelect } from 'tree-select';
     const data = [{
