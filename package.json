@@ -22,7 +22,8 @@
     }
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --config vite.demo.config.ts",
+    "build:demo": "vite build --config vite.demo.config.ts",
     "build": "tsc -p tsconfig.build.json && vite build",
     "lint": "biome check --write .",
     "format": "biome check --write .",

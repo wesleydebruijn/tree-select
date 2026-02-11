@@ -222,7 +222,6 @@ To set up the development environment:
 
 2. Start the development server:
    ```bash
-   cd demo
    npm install
    npm run dev
    ```
