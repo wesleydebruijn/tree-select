@@ -414,6 +414,25 @@
     pre {
       font-size: 11px;
     }
+
+    @media (max-width: 1000px) {
+      .builder-main-row {
+        flex-direction: column;
+      }
+      .panel {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .panel textarea {
+        font-size: 11px;
+        min-height: 160px;
+      }
+      .panel.condition textarea {
+        min-height: 160px;
+      }
+    }
   </style>
   <script>
     (function () {
