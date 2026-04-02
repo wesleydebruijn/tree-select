@@ -42,6 +42,25 @@ describe("core", () => {
       expect(items.get("1-2")?.name).toBe("Child 1");
       expect(items.get("1-3")?.name).toBe("Child 2");
     });
+
+    it("should store searchTerms from data", () => {
+      const data: Data[] = [
+        {
+          id: "1",
+          name: "Parent",
+          children: [
+            { id: "2", name: "Child 1", searchTerms: ["EAN123", "EAN456"] },
+            { id: "3", name: "Child 2" },
+          ],
+        },
+      ];
+
+      createItems(items, data);
+
+      expect(items.get("1-2")?.searchTerms).toEqual(["EAN123", "EAN456"]);
+      expect(items.get("1-3")?.searchTerms).toEqual([]);
+      expect(items.get("0-1")?.searchTerms).toEqual([]);
+    });
   });
 
   describe("itemsDepth", () => {

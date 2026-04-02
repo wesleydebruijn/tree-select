@@ -15,6 +15,7 @@ export function createItems(
       id: `${record.id}`,
       name: record.name,
       fullName: parent ? `${parent.fullName} ${record.name}` : record.name,
+      searchTerms: record.searchTerms ?? [],
       checked: false,
       indeterminate: false,
       collapsed: true,
