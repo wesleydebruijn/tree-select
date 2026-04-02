@@ -14,6 +14,7 @@ export interface Data {
   id: string | number;
   name: string;
   children?: Data[];
+  searchTerms?: string[];
 }
 
 export interface TreeItem {
@@ -24,6 +25,7 @@ export interface TreeItem {
   depth: number;
   name: string;
   fullName: string;
+  searchTerms: string[];
   checked: boolean;
   indeterminate: boolean;
   collapsed: boolean;

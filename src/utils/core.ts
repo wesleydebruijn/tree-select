@@ -15,6 +15,7 @@ export function createItems(
       id: `${record.id}`,
       name: record.name,
       fullName: parent ? `${parent.fullName} ${record.name}` : record.name,
+      searchTerms: record.searchTerms ?? [],
       checked: false,
       indeterminate: false,
       collapsed: true,
@@ -109,8 +110,13 @@ export function searchItems(
   } else {
     updateItems(items, { hidden: true, collapsed: true });
     updateItems(items, (item) => {
-      const match = item.fullName.toLowerCase().includes(search.toLowerCase());
-      if (!match) return;
+      const searchLower = search.toLowerCase();
+      const nameMatch = item.fullName.toLowerCase().includes(searchLower);
+      const termsMatch = item.searchTerms.some((term) =>
+        term.toLowerCase().includes(searchLower)
+      );
+
+      if (!nameMatch && !termsMatch) return;
 
       item.hidden = false;
 

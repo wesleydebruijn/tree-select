@@ -42,6 +42,25 @@ describe("core", () => {
       expect(items.get("1-2")?.name).toBe("Child 1");
       expect(items.get("1-3")?.name).toBe("Child 2");
     });
+
+    it("should store searchTerms from data", () => {
+      const data: Data[] = [
+        {
+          id: "1",
+          name: "Parent",
+          children: [
+            { id: "2", name: "Child 1", searchTerms: ["EAN123", "EAN456"] },
+            { id: "3", name: "Child 2" },
+          ],
+        },
+      ];
+
+      createItems(items, data);
+
+      expect(items.get("1-2")?.searchTerms).toEqual(["EAN123", "EAN456"]);
+      expect(items.get("1-3")?.searchTerms).toEqual([]);
+      expect(items.get("0-1")?.searchTerms).toEqual([]);
+    });
   });
 
   describe("itemsDepth", () => {
@@ -152,6 +171,76 @@ describe("core", () => {
       expect(parent?.collapsed).toBe(false);
       expect(child1?.hidden).toBe(false);
       expect(child2?.hidden).toBe(true);
+    });
+
+    it("should show items matching on searchTerms and their parents", () => {
+      const data: Data[] = [
+        {
+          id: "1",
+          name: "Apple",
+          children: [
+            {
+              id: "2",
+              name: "iPhone 15",
+              children: [
+                { id: "3", name: "iPhone 15 Pro 128GB", searchTerms: ["194252031315"] },
+                { id: "4", name: "iPhone 15 Pro 256GB", searchTerms: ["194252031400"] },
+              ],
+            },
+          ],
+        },
+      ];
+
+      createItems(items, data);
+
+      searchItems(items, "194252031315");
+
+      expect(items.get("0-1")?.hidden).toBe(false);   // Apple (ancestor) visible
+      expect(items.get("0-1")?.collapsed).toBe(false); // Apple uncollapsed
+      expect(items.get("1-2")?.hidden).toBe(false);    // iPhone 15 (ancestor) visible
+      expect(items.get("1-2")?.collapsed).toBe(false); // iPhone 15 uncollapsed
+      expect(items.get("2-3")?.hidden).toBe(false);    // matching item visible
+      expect(items.get("2-4")?.hidden).toBe(true);     // non-matching sibling hidden
+    });
+
+    it("should still match on name when searchTerms is empty", () => {
+      const data: Data[] = [
+        {
+          id: "1",
+          name: "Parent",
+          children: [
+            { id: "2", name: "Child 1", searchTerms: [] },
+            { id: "3", name: "Child 2" },
+          ],
+        },
+      ];
+
+      createItems(items, data);
+
+      searchItems(items, "Child 1");
+
+      expect(items.get("0-1")?.hidden).toBe(false);
+      expect(items.get("1-2")?.hidden).toBe(false);
+      expect(items.get("1-3")?.hidden).toBe(true);
+    });
+
+    it("should match partial searchTerms", () => {
+      const data: Data[] = [
+        {
+          id: "1",
+          name: "Brand",
+          children: [
+            { id: "2", name: "Product", searchTerms: ["194252031315"] },
+          ],
+        },
+      ];
+
+      createItems(items, data);
+
+      searchItems(items, "42520313");
+
+      expect(items.get("0-1")?.hidden).toBe(false);
+      expect(items.get("1-2")?.hidden).toBe(false);
     });
   });
 
