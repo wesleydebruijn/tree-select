@@ -2,6 +2,7 @@ import {
   createItems,
   itemAscendants,
   itemValues,
+  itemsCommonPath,
   itemsDepth,
   searchItems,
   selectItem,
@@ -408,7 +409,11 @@ export class TreeSelect {
     if (search === this.search) return;
 
     this.search = search;
-    searchItems(this.items, search);
+
+    const matches = searchItems(this.items, search);
+
+    this.activeItems = itemsCommonPath(this.items, matches);
+    this.activeItem = this.activeItems[this.activeItems.length - 1] ?? null;
 
     this.render();
 

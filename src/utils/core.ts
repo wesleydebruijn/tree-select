@@ -47,6 +47,33 @@ export function itemAscendants(
   return itemAscendants(items, parent, ascendants);
 }
 
+export function itemsCommonPath(
+  items: Map<string, TreeItem>,
+  matches: TreeItem[]
+): TreeItem[] {
+  if (matches.length === 0) return [];
+
+  const paths = matches.map((item) => [
+    ...itemAscendants(items, item).reverse(),
+    item,
+  ]);
+
+  const [first, ...rest] = paths;
+  let length = first.length;
+
+  for (const path of rest) {
+    let index = 0;
+
+    while (index < length && path[index] === first[index]) {
+      index++;
+    }
+
+    length = index;
+  }
+
+  return first.slice(0, length);
+}
+
 export function itemsDepth(items: Map<string, TreeItem>): number {
   return Math.max(...Array.from(items.values()).map(({ depth }) => depth));
 }
@@ -104,29 +131,38 @@ export function propagateItem(
 export function searchItems(
   items: Map<string, TreeItem>,
   search: string
-): void {
+): TreeItem[] {
   if (search.length === 0) {
     updateItems(items, { hidden: false, collapsed: true });
-  } else {
-    updateItems(items, { hidden: true, collapsed: true });
-    updateItems(items, (item) => {
-      const searchLower = search.toLowerCase();
-      const nameMatch = item.fullName.toLowerCase().includes(searchLower);
-      const termsMatch = item.searchTerms.some((term) =>
-        term.toLowerCase().includes(searchLower)
-      );
 
-      if (!nameMatch && !termsMatch) return;
-
-      item.hidden = false;
-
-      updateItemDescendants(items, item, { hidden: false });
-      updateItemAscendants(items, item, {
-        hidden: false,
-        collapsed: false,
-      });
-    });
+    return [];
   }
+
+  const matches: TreeItem[] = [];
+
+  updateItems(items, { hidden: true, collapsed: true });
+  updateItems(items, (item) => {
+    const searchLower = search.toLowerCase();
+    const nameMatch = item.fullName.toLowerCase().includes(searchLower);
+    const termsMatch = item.searchTerms.some((term) =>
+      term.toLowerCase().includes(searchLower)
+    );
+
+    if (!nameMatch && !termsMatch) return;
+
+    matches.push(item);
+
+    item.hidden = false;
+    item.collapsed = false;
+
+    updateItemDescendants(items, item, { hidden: false });
+    updateItemAscendants(items, item, {
+      hidden: false,
+      collapsed: false,
+    });
+  });
+
+  return matches;
 }
 
 export function selectItem(items: Map<string, TreeItem>, item: TreeItem): void {

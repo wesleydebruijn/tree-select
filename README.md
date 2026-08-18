@@ -23,6 +23,7 @@ A lightweight (~3kb gzipped), zero-dependency UI control that transforms `<selec
 - Parent/child selection propagation
 - Supports both input and select HTML elements
 - Built in functionalities like search, shift+select, clear
+- Search opens the tree up to the level where the match is
 - Tailwind support by injectable classNames
 - TypeScript support
 

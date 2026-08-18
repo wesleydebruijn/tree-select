@@ -171,12 +171,62 @@ describe("TreeSelect", () => {
     });
 
     treeSelect.open();
+    jest.runAllTimers();
+
     const searchInput = document.querySelector(
       ".tree-select-search"
     ) as HTMLInputElement;
     searchInput.value = "Child 1";
-    searchInput.dispatchEvent(new Event("input"));
+    searchInput.dispatchEvent(new Event("search"));
+    jest.runAllTimers();
 
+    expect(treeSelect.activeItems.map((item) => item.id)).toEqual(["1", "2"]);
+    expect(treeSelect.items.get("0-1")?.collapsed).toBe(false);
+    expect(treeSelect.items.get("1-3")?.itemElement?.style.display).toBe(
+      "none"
+    );
+    expect(document.body.innerHTML).toMatchSnapshot();
+  });
+
+  it("should open to the searched item in horizontal mode", () => {
+    const input = document.createElement("input");
+    document.body.appendChild(input);
+    const treeSelect = new TreeSelect(input, {
+      mode: "horizontal",
+      data: [
+        {
+          id: "1",
+          name: "Apple",
+          children: [
+            {
+              id: "2",
+              name: "iPhone 15",
+              children: [
+                { id: "3", name: "128GB", searchTerms: ["194252031315"] },
+                { id: "4", name: "256GB", searchTerms: ["194252031400"] },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    treeSelect.open();
+    jest.runAllTimers();
+
+    const searchInput = document.querySelector(
+      ".tree-select-search"
+    ) as HTMLInputElement;
+    searchInput.value = "194252031315";
+    searchInput.dispatchEvent(new Event("search"));
+    jest.runAllTimers();
+
+    expect(treeSelect.activeItems.map((item) => item.id)).toEqual([
+      "1",
+      "2",
+      "3",
+    ]);
+    expect(treeSelect.items.get("2-3")?.itemElement?.style.display).toBe("");
     expect(document.body.innerHTML).toMatchSnapshot();
   });
 
