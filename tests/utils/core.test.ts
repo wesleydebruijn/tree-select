@@ -3,6 +3,7 @@ import {
   createItems,
   itemAscendants,
   itemValues,
+  itemsCommonPath,
   itemsDepth,
   populateItems,
   propagateItem,
@@ -224,6 +225,54 @@ describe("core", () => {
       expect(items.get("1-3")?.hidden).toBe(true);
     });
 
+    it("should return the matched items", () => {
+      const data: Data[] = [
+        {
+          id: "1",
+          name: "Apple",
+          children: [
+            {
+              id: "2",
+              name: "iPhone 15",
+              children: [
+                { id: "3", name: "128GB", searchTerms: ["194252031315"] },
+                { id: "4", name: "256GB", searchTerms: ["194252031400"] },
+              ],
+            },
+          ],
+        },
+      ];
+
+      createItems(items, data);
+
+      expect(searchItems(items, "194252031315")).toEqual([items.get("2-3")]);
+      expect(searchItems(items, "")).toEqual([]);
+    });
+
+    it("should expand a matching item so its children are visible", () => {
+      const data: Data[] = [
+        {
+          id: "1",
+          name: "Apple",
+          children: [
+            {
+              id: "2",
+              name: "iPhone 15",
+              searchTerms: ["194252031315"],
+              children: [{ id: "3", name: "128GB" }],
+            },
+          ],
+        },
+      ];
+
+      createItems(items, data);
+
+      searchItems(items, "194252031315");
+
+      expect(items.get("1-2")?.collapsed).toBe(false);
+      expect(items.get("2-3")?.hidden).toBe(false);
+    });
+
     it("should match partial searchTerms", () => {
       const data: Data[] = [
         {
@@ -241,6 +290,64 @@ describe("core", () => {
 
       expect(items.get("0-1")?.hidden).toBe(false);
       expect(items.get("1-2")?.hidden).toBe(false);
+    });
+  });
+
+  describe("itemsCommonPath", () => {
+    const data: Data[] = [
+      {
+        id: "1",
+        name: "Apple",
+        children: [
+          {
+            id: "2",
+            name: "iPhone 15",
+            children: [
+              { id: "3", name: "128GB", searchTerms: ["194252031315"] },
+              { id: "4", name: "256GB", searchTerms: ["194252031400"] },
+            ],
+          },
+        ],
+      },
+      {
+        id: "5",
+        name: "Samsung",
+        children: [{ id: "6", name: "Galaxy 128GB" }],
+      },
+    ];
+
+    it("should return the full path for a single match", () => {
+      createItems(items, data);
+
+      const matches = searchItems(items, "194252031315");
+
+      expect(itemsCommonPath(items, matches)).toEqual([
+        items.get("0-1"),
+        items.get("1-2"),
+        items.get("2-3"),
+      ]);
+    });
+
+    it("should return the shared path for matches in one branch", () => {
+      createItems(items, data);
+
+      const matches = searchItems(items, "Apple");
+
+      expect(itemsCommonPath(items, matches)).toEqual([items.get("0-1")]);
+    });
+
+    it("should return an empty path for matches in separate branches", () => {
+      createItems(items, data);
+
+      const matches = searchItems(items, "128GB");
+
+      expect(itemsCommonPath(items, matches)).toEqual([]);
+    });
+
+    it("should return an empty path without matches", () => {
+      createItems(items, data);
+
+      expect(itemsCommonPath(items, [])).toEqual([]);
     });
   });
 
